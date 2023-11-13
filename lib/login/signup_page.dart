@@ -1,14 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
-//import 'package:email_validator/email_validator.dart';
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-//import 'package:image_picker/image_picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fresh_store_ui/Source/LoginUser/login.dart';
 import 'package:fresh_store_ui/login/common/page_header.dart';
 import 'package:fresh_store_ui/login/common/page_heading.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
-
 import 'package:fresh_store_ui/login/common/custom_form_button.dart';
 import 'package:fresh_store_ui/login/common/custom_input_field.dart';
+import 'package:http/http.dart' as http;
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -18,10 +20,53 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-
-  File? _profileImage;
-
   final _signupFormKey = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController nicknameController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  File? _profileImage;
+  final storage = FlutterSecureStorage();
+
+  Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
+    try {
+      var Url = Uri.parse("http://192.168.56.1:8080/auth/register");
+      var response = await http.post(Url,
+          headers: <String, String>{"Content-Type": "application/json"},
+          body: jsonEncode(<String, String>{
+            "email": email,
+            "password": password,
+            "nickname": nickname,
+            "name": name,
+          }));
+
+      if (response.statusCode == 200) {
+        showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (BuildContext dialogContext) {
+              return MyAlertDialog(title: '처리 메시지', content: '회원가입이 완료되었습니다');
+            });
+        return true;
+      } else {
+        final Map<String, dynamic> errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        final errorMessage = errorResponse["message"];
+        showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (BuildContext dialogContext) {
+              return MyAlertDialog(title: '오류 메시지', content: errorMessage);
+            });
+        return false;
+      }
+    } catch (e) {
+      print('서버 연결 오류: $e');
+      throw Exception('서버 연결 오류: $e');
+    }
+    return false;
+  }
+
+
 
   Future _pickProfileImage() async {
     // try {
@@ -89,36 +134,40 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       const SizedBox(height: 16,),
                       CustomInputField(
-                          labelText: 'Name',
-                          hintText: 'Your name',
-                          isDense: true,
-                          validator: (textValue) {
-                            if(textValue == null || textValue.isEmpty) {
-                              return 'Name field is required!';
-                            }
-                            return null;
-                          }
-                      ),
-                      const SizedBox(height: 16,),
-                      CustomInputField(
-                          labelText: 'Nickname',
-                          hintText: 'Your Nickname',
-                          isDense: true,
-                          validator: (textValue) {
-                            if(textValue == null || textValue.isEmpty) {
-                              return 'Nickname is required!';
-                            }
-                            return null;
-                          }
-                      ),
-                      const SizedBox(height: 16,),
-                      CustomInputField(
+                          controller: emailController,
                           labelText: 'Email',
-                          hintText: 'Your email id',
+                          hintText: 'Email을 작성해주세요',
                           isDense: true,
                           validator: (textValue) {
                             if(textValue == null || textValue.isEmpty) {
-                              return 'Email is required!';
+                              return '작성해주세요!!';
+                            }
+                            return null;
+                          }
+                      ),
+                      const SizedBox(height: 16,),
+                      CustomInputField(
+                          controller: passwordController,
+                          labelText: '비밀번호',
+                          hintText: '비밀번호를 작성해주세요',
+                          isDense: true,
+                          obscureText: true,
+                          validator: (textValue) {
+                            if(textValue == null || textValue.isEmpty) {
+                              return '작성해주세요!!';
+                            }
+                            return null;
+                          }
+                      ),
+                      const SizedBox(height: 16,),
+                      CustomInputField(
+                          controller: nicknameController,
+                          labelText: '별명',
+                          hintText: '사용할 별명을 작성해주세요',
+                          isDense: true,
+                          validator: (textValue) {
+                            if(textValue == null || textValue.isEmpty) {
+                              return '작성해주세요!!';
                             }
                             // if(!EmailValidator.validate(textValue)) {
                             //   return 'Please enter a valid email';
@@ -129,20 +178,34 @@ class _SignupPageState extends State<SignupPage> {
 
                       const SizedBox(height: 16,),
                       CustomInputField(
-                        labelText: 'Password',
-                        hintText: 'Your password',
+                        controller: nameController,
+                        labelText: '이름',
+                        hintText: '이름을 작성해주세요',
                         isDense: true,
-                        obscureText: true,
                         validator: (textValue) {
                           if(textValue == null || textValue.isEmpty) {
-                            return 'Password is required!';
+                            return '작성해주세요!!';
                           }
                           return null;
                         },
                         suffixIcon: true,
                       ),
                       const SizedBox(height: 22,),
-                      CustomFormButton(innerText: 'Signup', onPressed: _handleSignupUser,),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_signupFormKey.currentState!.validate()) {
+
+                            registerUsers(
+                                emailController.text,
+                                passwordController.text,
+                                nicknameController.text,
+                                nameController.text,
+                                context
+                            );
+                          }
+                        },
+                        child: Text('회원가입'),
+                      ),
                       const SizedBox(height: 18,),
                       SizedBox(
                         child: Row(
@@ -171,12 +234,28 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void _handleSignupUser() {
-    // signup user
-    if (_signupFormKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Submitting data..')),
-      );
-    }
+}class MyAlertDialog extends StatelessWidget {
+  final String title;
+  final String content;
+
+  const MyAlertDialog({
+    Key? key,
+    required this.title,
+    required this.content,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK'),
+        ),
+      ],
+    );
   }
 }
+

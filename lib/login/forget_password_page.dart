@@ -14,7 +14,7 @@ class ForgetPasswordPage extends StatefulWidget {
 }
 
 class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
-
+  TextEditingController emailController = TextEditingController();
   final _forgetPasswordFormKey = GlobalKey<FormState>();
 
   @override
@@ -38,6 +38,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       children: [
                         const PageHeading(title: 'Forgot password',),
                         CustomInputField(
+                            controller: emailController,
                             labelText: 'Email',
                             hintText: 'Your email id',
                             isDense: true,

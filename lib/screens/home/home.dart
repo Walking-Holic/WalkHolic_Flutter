@@ -4,13 +4,12 @@ import 'package:fresh_store_ui/model/popular.dart';
 import 'package:fresh_store_ui/screens/detail/detail_screen.dart';
 import 'package:fresh_store_ui/screens/home/hearder.dart';
 import 'package:fresh_store_ui/screens/home/most_popular.dart';
-import 'package:fresh_store_ui/screens/home/search_field.dart';
-import 'package:fresh_store_ui/screens/home/special_offer.dart';
 import 'package:fresh_store_ui/screens/mostpopular/most_popular_screen.dart';
 import 'package:fresh_store_ui/screens/special_offers/special_offers_screen.dart';
-import 'package:kakaomap_webview/kakaomap_webview.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:location/location.dart';
 
-const String kakaoMapKey = 'acca0bbd31345e24d6644a9cac20b85f';
+const String kakaoMapKey = 'c7f0222c04ff0b7bb1656cf815b683d2';
 
 class HomeScreen extends StatefulWidget {
   final String title;
@@ -37,10 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.only(top: 24),
             sliver: SliverAppBar(
               pinned: true,
+              automaticallyImplyLeading: false,
               flexibleSpace: HomeAppBar(),
             ),
           ),
-          SliverPadding(
+          /*SliverPadding(
             padding: padding,
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 childCount: 1,
               ),
             ),
-          ),
+          ),*/
           // SliverPadding(
           //   padding: padding,
           //   sliver: _buildPopulars(),
@@ -71,7 +71,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
+          SliverPadding(
+            padding: EdgeInsets.all(20),
+            sliver: SliverToBoxAdapter(
+              child: Expanded(
+                child: KakaoMap(
+                  onMapCreated: ((controller) {
+                    /*mapController = controller;*/
+                    setState(() {});
+                  }),
+                  /*markers: markers.toList(),*/
+                  center: LatLng(37.3608681, 126.9306506), // 초기 값 (카카오)
+                ),
+              ),
+            ),
+          ),
           //const SliverAppBar(flexibleSpace: SizedBox(height: 24)),
 
         ],
@@ -82,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody(BuildContext context) {
     return Column(
       children: [
-        const SearchField(),
+        // const SearchField(),
         const SizedBox(height: 24),
         //SpecialOffers(onTapSeeAll: () => _onTapSpecialOffersSeeAll(context)),
         const SizedBox(height: 24),

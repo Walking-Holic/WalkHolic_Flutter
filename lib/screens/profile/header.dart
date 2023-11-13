@@ -29,7 +29,7 @@ class ProfileHeader extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 60,
-              backgroundImage: AssetImage('assets/icons/me.png'),
+              backgroundImage: AssetImage('assets/icons/walkholic1.png'),
             ),
             Positioned.fill(
               child: Align(
@@ -43,10 +43,8 @@ class ProfileHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        const Text('Mansuriosdev', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        const Text('WalkHolic', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
         const SizedBox(height: 8),
-        const Text('99 300 00 00', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 20),
         Container(
           color: const Color(0xFFEEEEEE),
           height: 1,

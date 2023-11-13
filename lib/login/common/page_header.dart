@@ -7,9 +7,9 @@ class PageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return SizedBox(
-      width: double.infinity,
-      height: size.height * 0.3,
-      child: Image.asset('assets/images/friendship.png'),
+      width: size.width * 0.8,  // 이미지의 너비를 화면 너비의 80%로 설정
+      height: size.height * 0.2,
+      child: Image.asset('assets/icons/walkholic.png',),
     );
   }
 }

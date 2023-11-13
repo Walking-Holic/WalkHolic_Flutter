@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fresh_store_ui/screens/profile/header.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:fresh_store_ui/Source/LoginUser/userInfo.dart';
 
 typedef ProfileOptionTap = void Function();
 
@@ -38,20 +42,55 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? profileData;
   static _profileIcon(String last) => 'assets/icons/profile/$last';
+  final storage = FlutterSecureStorage();
+
+  Future<Map<String, dynamic>?> fetchProfile() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+
+      var Url = Uri.parse("http://192.168.56.1:8080/api/member/me");
+      var response = await http.get(Url, // 서버의 프로필 정보 API
+        headers: <String, String>{
+          'Authorization': 'Bearer $accessToken'},
+      );
+      print(accessToken);
+      var decodedResponse = utf8.decode(response.bodyBytes);
+      print('서버 응답: ${response.statusCode}, ${response.body}');
+      if (response.statusCode == 200) {
+        print("성공");
+
+        return jsonDecode(decodedResponse);
+      } else {
+        print('Failed to fetch profile');
+      }
+    }catch (e) {
+      print('서버 연결 오류: $e');
+      // 서버 연결 오류를 처리할 수 있는 코드를 추가하십시오.
+      throw Exception('서버 연결 오류: $e');
+    }
+  }
 
   bool _isDark = false;
 
-  get datas => <ProfileOption>[
-        ProfileOption.arrow(title: 'Edit Profile', icon: _profileIcon('user@2x.png')),
-        ProfileOption.arrow(title: 'Adress', icon: _profileIcon('location@2x.png')),
-        ProfileOption.arrow(title: 'Notification', icon: _profileIcon('notification@2x.png')),
-        ProfileOption.arrow(title: 'Payment', icon: _profileIcon('wallet@2x.png')),
-        ProfileOption.arrow(title: 'Security', icon: _profileIcon('shield_done@2x.png')),
-        _languageOption(),
-        _darkModel(),
-        ProfileOption.arrow(title: 'Help Center', icon: _profileIcon('info_square@2x.png')),
-        ProfileOption.arrow(title: 'Invite Friends', icon: _profileIcon('user@2x.png')),
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetProfileData();
+  }
+
+  void _fetchAndSetProfileData() async {
+    profileData = await fetchProfile();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+  get datas => profileData != null ? <ProfileOption>[
+        ProfileOption(title: '이메일: ${profileData?['email']}' , icon: _profileIcon('shield_done@2x.png')),
+        ProfileOption(title:'닉네임: ${profileData?['nickname']}',icon: _profileIcon('user@2x.png')),
+        ProfileOption(title: '랭크: ${profileData?['rank']}', icon:_profileIcon('show@2x.png')),
+        ProfileOption(title: '걸음 수: ${profileData?['walk']}', icon:_profileIcon('location@2x.png')),
         ProfileOption(
           title: 'Logout',
           icon: _profileIcon('logout@2x.png'),
@@ -63,9 +102,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
         ),
-      ];
+      ] : [];
 
-  _languageOption() => ProfileOption(
+  void _viewProfile() {
+    print("눌림");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => getUserInfo()),
+    );
+  }
+
+
+  /*_languageOption() => ProfileOption(
       title: 'Language',
       icon: _profileIcon('more_circle@2x.png'),
       trailing: SizedBox(
@@ -94,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _isDark = !_isDark;
           });
         },
-      ));
+      ));*/
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildBody() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 10.0),
-      sliver: SliverList(
+      sliver: profileData != null ? SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final data = datas[index];
@@ -126,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           childCount: datas.length,
         ),
-      ),
+      ): SliverToBoxAdapter(child: CircularProgressIndicator()),
     );
   }
 
@@ -138,7 +186,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, color: data.titleColor),
       ),
       trailing: data.trailing,
-      onTap: () {},
+      onTap: data.onClick,
+    );
+  }
+}
+
+
+class getUserInfo extends StatefulWidget {
+  const getUserInfo ({Key? key}) : super(key: key);
+  @override
+  _getUserInfoState createState() => _getUserInfoState();
+}
+
+class _getUserInfoState extends State<getUserInfo> {
+
+  final storage = FlutterSecureStorage();
+
+  Future<Map<String, dynamic>?> fetchProfile() async {
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+
+      var Url = Uri.parse("http://192.168.56.1:8080/api/member/me");
+      var response = await http.get(Url, // 서버의 프로필 정보 API
+        headers: <String, String>{
+          'Authorization': 'Bearer $accessToken'},
+      );
+      print(accessToken);
+      var decodedResponse = utf8.decode(response.bodyBytes);
+      print('서버 응답: ${response.statusCode}, ${response.body}');
+      if (response.statusCode == 200) {
+        print("성공");
+
+        return jsonDecode(decodedResponse);
+      } else {
+        print('Failed to fetch profile');
+      }
+    }catch (e) {
+      print('서버 연결 오류: $e');
+      // 서버 연결 오류를 처리할 수 있는 코드를 추가하십시오.
+      throw Exception('서버 연결 오류: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('프로필 정보'),
+      ),
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: fetchProfile(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('프로필 정보를 불러오는 데 실패했습니다.'));
+          }
+
+          if (snapshot.data == null) {
+            return Center(child: Text('프로필 정보가 없습니다.'));
+          }
+
+          final profileData = snapshot.data!;
+
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('이메일: ${profileData['email']}', style: TextStyle(fontSize: 20)),
+                Text('닉네임: ${profileData['nickname']}', style: TextStyle(fontSize: 20)),
+                Text('랭크: ${profileData['rank']}', style: TextStyle(fontSize: 20)),
+                Text('걸음 수: ${profileData['walk']}', style: TextStyle(fontSize: 20)),
+                // 여기에 추가 프로필 정보를 표시
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -15,7 +15,7 @@ class HomeAppBar extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(24)),
             onTap: () => Navigator.pushNamed(context, ProfileScreen.route()),
             child: const CircleAvatar(
-              backgroundImage: AssetImage('$kIconPath/me.png'),
+              backgroundImage: AssetImage('$kIconPath/walkholic1.png'),
               radius: 24,
             ),
           ),
@@ -27,7 +27,7 @@ class HomeAppBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Text(
-                    'Good Morning 👋',
+                    '잠깐 시간 될까',
                     style: TextStyle(
                       color: Color(0xFF757575),
                       fontWeight: FontWeight.w500,
@@ -35,7 +35,7 @@ class HomeAppBar extends StatelessWidget {
                   ),
                   SizedBox(height: 6),
                   Text(
-                    'Mansuriosdev',
+                    'walkholic',
                     style: TextStyle(
                       color: Color(0xFF212121),
                       fontWeight: FontWeight.bold,

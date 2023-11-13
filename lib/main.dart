@@ -19,7 +19,7 @@ class FreshBuyerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Fresh-Buyer',
+      title: '잠깐 시간 될까',
       theme: appTheme(),
       routes: routes,
       home: const LoginPage(),
