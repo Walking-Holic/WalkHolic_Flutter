@@ -9,6 +9,8 @@ import 'package:fresh_store_ui/login/forget_password_page.dart';
 import 'package:fresh_store_ui/login/signup_page.dart';
 import 'package:fresh_store_ui/login/common/page_heading.dart';
 import 'package:fresh_store_ui/screens/tabbar/tabbar.dart';
+import 'package:fresh_store_ui/Source/LoginUser/user.dart';
+import 'package:fresh_store_ui/constants.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -22,7 +24,7 @@ final storage = FlutterSecureStorage();
 Future<bool> loginUsers(
     String email, String password, BuildContext context) async {
   try {
-    var Url = Uri.parse("http://192.168.56.1:8080/auth/login"); //본인 IP 주소를  localhost 대신 넣기
+    var Url = Uri.parse("http://$IP_address:8080/auth/login"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{
@@ -99,24 +101,24 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
-        child: Scaffold(
-          backgroundColor: const Color(0xffEEF1F3),
-          body: Column(
-            children: [
-              const PageHeader(),
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20),),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _loginFormKey,
-                      child: Column(
-                        children: [
-                          const PageHeading(title: 'Log-in',),
-                          CustomInputField(controller: emailController,
+      child: Scaffold(
+        backgroundColor: const Color(0xffEEF1F3),
+        body: Column(
+          children: [
+            const PageHeader(),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20),),
+                ),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _loginFormKey,
+                    child: Column(
+                      children: [
+                        const PageHeading(title: 'Log-in',),
+                        CustomInputField(controller: emailController,
                             labelText: '이메일',
                             hintText: '이메일을 작성해주세요',
                             validator: (textValue) {
@@ -128,42 +130,46 @@ class _LoginPageState extends State<LoginPage> {
                               // }
                               return null;
                             }
-                          ),
-                          const SizedBox(height: 16,),
-                          CustomInputField(
-                            controller: passwordController,
-                            labelText: '비밀번호',
-                            hintText: '비밀번호를 작성해주세요',
-                            obscureText: true,
-                            suffixIcon: true,
-                            validator: (textValue) {
-                              if(textValue == null || textValue.isEmpty) {
-                                return '작성해주세요!!';
-                              }
-                              return null;
+                        ),
+                        const SizedBox(height: 16,),
+                        CustomInputField(
+                          controller: passwordController,
+                          labelText: '비밀번호',
+                          hintText: '비밀번호를 작성해주세요',
+                          obscureText: true,
+                          suffixIcon: true,
+                          validator: (textValue) {
+                            if(textValue == null || textValue.isEmpty) {
+                              return '작성해주세요!!';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16,),
+                        Container(
+                          width: size.width * 0.80,
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage()))
                             },
-                          ),
-                          const SizedBox(height: 16,),
-                          Container(
-                            width: size.width * 0.80,
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              onTap: () => {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage()))
-                              },
-                              child: const Text(
-                                'Forget password?',
-                                style: TextStyle(
-                                  color: Color(0xff939393),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            child: const Text(
+                              'Forget password?',
+                              style: TextStyle(
+                                color: Color(0xff939393),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20,),
-                          ElevatedButton(
-                            child: Text('작성'),
+                        ),
+                        const SizedBox(height: 20,),
+                        SizedBox(
+                          width: 650,
+                          height: 45,
+
+                          child: ElevatedButton(
+                            child: Text('로그인'),
                             onPressed: () async {
                               String email = emailController.text;
                               String password = passwordController.text;
@@ -185,33 +191,81 @@ class _LoginPageState extends State<LoginPage> {
                                 // 서버 연결 오류를 처리
                               }
                             },
-                          ),
-                          const SizedBox(height: 18,),
-                          SizedBox(
-                            width: size.width * 0.8,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text('Don\'t have an account ? ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
-                                GestureDetector(
-                                  onTap: () => {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupPage()))
-                                  },
-                                  child: const Text('Sign-up', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
-                                ),
-                              ],
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)
+                                )
                             ),
                           ),
-                          const SizedBox(height: 20,),
-                        ],
-                      ),
+                        ),
+
+                        const SizedBox(height: 20,),
+                        SizedBox(
+                          width: 650,
+                          height: 45,
+                          child: ElevatedButton(
+                            child: Text('카카오 로그인', style: TextStyle(color: Colors.black),),
+                            onPressed: () async {
+                              final code = await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => KakaoLoginScreen()),
+                              );
+                              if (code != null) {
+                                try {
+                                  bool kakakLoginResult = await kakaoLogingUsers(code, context);
+
+                                  if (kakakLoginResult) {
+                                    // 회원 등록 성공
+                                    print('카카오톡 로그인 성공');
+                                    // 이후 사용자 정보를 가져오는 요청 또는 다른 작업을 수행
+                                    // UserModel userModel = await fetchUserInfo(email);
+                                  } else {
+                                    // 회원 등록 실패
+                                    print('카카오톡 로그인 실패');
+                                    // 다른 처리 수행
+                                  }
+                                } catch (e) {
+                                  print('서버 연결 오류: $e');
+                                  // 서버 연결 오류를 처리
+                                }
+                              }
+                            },
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: Colors.yellow,
+                             shape: RoundedRectangleBorder(
+                               borderRadius: BorderRadius.circular(10)
+                             )
+                           ),
+
+                          ),
+                        ),
+                        const SizedBox(height: 18,),
+                        SizedBox(
+                          width: size.width * 0.8,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Don\'t have an account ? ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
+                              GestureDetector(
+                                onTap: () => {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupPage()))
+                                },
+                                child: const Text('Sign-up', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 

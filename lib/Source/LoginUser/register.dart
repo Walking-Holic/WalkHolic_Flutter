@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fresh_store_ui/login/signup_page.dart'; // 필요한 경우 적절한 경로로 수정하세요
-
+import 'package:fresh_store_ui/constants.dart';
 
 
 
@@ -25,7 +25,7 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
     try {
-      var Url = Uri.parse("http://192.168.56.1:8080/auth/register");
+      var Url = Uri.parse("http://$IP_address:8080/auth/register");
       var response = await http.post(Url,
           headers: <String, String>{"Content-Type": "application/json"},
           body: jsonEncode(<String, String>{

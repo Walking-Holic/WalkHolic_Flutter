@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../App/home.dart';
-
+import 'package:fresh_store_ui/constants.dart';
 
 
 class loginUser extends StatefulWidget {
@@ -19,7 +19,7 @@ final storage = FlutterSecureStorage();
 Future<bool> loginUsers(
     String email, String password, BuildContext context) async {
   try {
-    var Url = Uri.parse("http://192.168.56.1:8080/auth/login"); //본인 IP 주소를  localhost 대신 넣기
+    var Url = Uri.parse("http://$IP_address:8080/auth/login"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{

@@ -13,7 +13,7 @@ class HomeAppBar extends StatelessWidget {
         children: [
           InkWell(
             borderRadius: const BorderRadius.all(Radius.circular(24)),
-            onTap: () => Navigator.pushNamed(context, ProfileScreen.route()),
+            //onTap: () => Navigator.pushNamed(context, ProfileScreen.route()),
             child: const CircleAvatar(
               backgroundImage: AssetImage('$kIconPath/walkholic1.png'),
               radius: 24,
@@ -51,6 +51,7 @@ class HomeAppBar extends StatelessWidget {
             icon: Image.asset('$kIconPath/notification.png'),
             onPressed: () {},
           ),
+
           const SizedBox(width: 16),
           IconButton(
             iconSize: 28,

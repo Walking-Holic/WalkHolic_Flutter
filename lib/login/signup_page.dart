@@ -11,6 +11,7 @@ import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:fresh_store_ui/login/common/custom_form_button.dart';
 import 'package:fresh_store_ui/login/common/custom_input_field.dart';
 import 'package:http/http.dart' as http;
+import 'package:fresh_store_ui/constants.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
     try {
-      var Url = Uri.parse("http://192.168.56.1:8080/auth/register");
+      var Url = Uri.parse("http://$IP_address:8080/auth/register");
       var response = await http.post(Url,
           headers: <String, String>{"Content-Type": "application/json"},
           body: jsonEncode(<String, String>{

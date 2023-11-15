@@ -3,10 +3,12 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:fresh_store_ui/Source/Loginuser/register.dart';
 import 'package:fresh_store_ui/Source/App/home.dart';
+import 'package:fresh_store_ui/screens/tabbar/tabbar.dart';
 import 'login.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fresh_store_ui/constants.dart';
 
 class KakaoLoginScreen extends StatefulWidget {
   @override
@@ -25,17 +27,18 @@ final storage = FlutterSecureStorage();
 Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
   try {
     var Url = Uri.parse(
-        "http://192.168.56.1:8080/auth/kakao"); //본인 IP 주소를  localhost 대신 넣기
+        "http://$IP_address:8080/auth/kakao"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{
           "authorizationCode" : code,
         }));
     print("code:"+code);
+    print(response.statusCode);
     if (response.statusCode == 200) {
       // 로그인 성공 시
       final Map<String, dynamic> responseData =
-          jsonDecode(utf8.decode(response.bodyBytes));
+      jsonDecode(utf8.decode(response.bodyBytes));
       final String accessToken = responseData['accessToken'];
 
 
@@ -53,7 +56,7 @@ Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
         },
       ).then((_) {
         // 대화 상자가 닫힌 후에 실행될 코드
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FRTabbarScreen()));
       });
       return true;
     } else if (response.statusCode == 400) {
@@ -141,7 +144,6 @@ class MyLoginPageState extends State<MyLoginPage> {
                     MaterialPageRoute(builder: (context) => KakaoLoginScreen()),
                   );
                   if (code != null) {
-                    print("3");
                     try {
                       bool kakakLoginResult = await kakaoLogingUsers(code, context);
 
@@ -212,24 +214,36 @@ class _KakaoLoginScreenState extends State<KakaoLoginScreen> {
       appBar: AppBar(
         title: Text("카카오 로그인"),
       ),
-      body: WebView(
-        initialUrl:
-            "https://kauth.kakao.com/oauth/authorize?client_id=a0120cb04bb109d4e2a6ad0a2ea8f24d&redirect_uri=http://localhost:8080/kakao/callback&response_type=code",
-        javascriptMode: JavascriptMode.unrestricted,
-        navigationDelegate: (NavigationRequest request) {
-          if (request.url.startsWith("http://localhost:8080/kakao/callback")) {
-            print("1");
-            Uri uri = Uri.parse(request.url);
+      body: Builder(
+        builder: (BuildContext context) {
+          // Builder 내에서 WebViewController를 생성하고 사용
+          WebViewController controller = WebViewController()
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)
+            ..setNavigationDelegate(
+              NavigationDelegate(
+                onProgress: (int progress) {
+                  // Update loading bar.
+                },
+                onPageStarted: (String url) {},
+                onPageFinished: (String url) {},
+                onWebResourceError: (WebResourceError error) {},
+                onNavigationRequest: (NavigationRequest request) {
+                  if (request.url.startsWith("http://localhost:8080/kakao/callback")) {
+                    Uri uri = Uri.parse(request.url);
+                    final code = uri.queryParameters["code"];
+                    if (code != null) {
+                      // 인가 코드를 사용하여 서버에 액세스 토큰 요청
+                      Navigator.pop(context, code);
+                    }
+                    return NavigationDecision.prevent;
+                  }
+                  return NavigationDecision.navigate;
+                },
+              ),
+            )
+            ..loadRequest(Uri.parse(("https://kauth.kakao.com/oauth/authorize?client_id=a0120cb04bb109d4e2a6ad0a2ea8f24d&redirect_uri=http://localhost:8080/kakao/callback&response_type=code")));
 
-            final code = uri.queryParameters["code"];
-            if (code != null) {
-              print("2");
-              // 인가 코드를 사용하여 서버에 액세스 토큰 요청
-              Navigator.pop(context, code);
-            }
-            return NavigationDecision.prevent;
-          }
-          return NavigationDecision.navigate;
+          return WebViewWidget(controller: controller);
         },
       ),
     );

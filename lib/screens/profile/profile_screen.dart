@@ -5,6 +5,7 @@ import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fresh_store_ui/Source/LoginUser/userInfo.dart';
+import 'package:fresh_store_ui/constants.dart';
 
 typedef ProfileOptionTap = void Function();
 
@@ -50,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
 
-      var Url = Uri.parse("http://192.168.56.1:8080/api/member/me");
+      var Url = Uri.parse("http://$IP_address:8080/api/member/me");
       var response = await http.get(Url, // 서버의 프로필 정보 API
         headers: <String, String>{
           'Authorization': 'Bearer $accessToken'},
@@ -206,7 +207,7 @@ class _getUserInfoState extends State<getUserInfo> {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
 
-      var Url = Uri.parse("http://192.168.56.1:8080/api/member/me");
+      var Url = Uri.parse("http://$IP_address:8080/api/member/me");
       var response = await http.get(Url, // 서버의 프로필 정보 API
         headers: <String, String>{
           'Authorization': 'Bearer $accessToken'},
