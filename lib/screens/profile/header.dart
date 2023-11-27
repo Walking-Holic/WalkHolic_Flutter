@@ -62,18 +62,13 @@ class _ProfileHeaderState extends State<ProfileHeader>{
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
           child: Row(
             children: [
               Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
               const SizedBox(width: 16),
               const Expanded(
                 child: Text('프로필', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              ),
-              IconButton(
-                iconSize: 28,
-                icon: Image.asset('assets/icons/tabbar/light/more_circle@2x.png', scale: 2),
-                onPressed: () {},
               ),
             ],
           ),

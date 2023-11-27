@@ -26,22 +26,29 @@ class TabbarItem {
 }
 
 class FRTabbarScreen extends StatefulWidget {
-  const FRTabbarScreen({super.key});
+  final int initialTabIndex;
 
+  const FRTabbarScreen({Key? key, this.initialTabIndex = 0}) : super(key: key);
   @override
   State<FRTabbarScreen> createState() => _FRTabbarScreenState();
 }
 
 class _FRTabbarScreenState extends State<FRTabbarScreen> {
-  int _select = 0;
+  late int _select;
 
   final screens = [
     const HomeScreen(
-      title: '首页0',
+      title: '홈',
     ),
     FeedScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _select = widget.initialTabIndex;  // 초기 선택된 탭 설정
+  }
 
   static Image generateIcon(String path) {
     return Image.asset(
@@ -81,8 +88,12 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
       body: screens[_select],
       bottomNavigationBar: BottomNavigationBar(
         items: items,
-        onTap: ((value) => setState(() => _select = value)),
         currentIndex: _select,
+        onTap: (index) {
+          setState(() {
+            _select = index; // 사용자가 선택한 화면으로 전환합니다.
+          });
+        },
         selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 10,

@@ -9,6 +9,7 @@ import 'package:fresh_store_ui/screens/board/board_post.dart';
 import 'package:dio/dio.dart';
 
 import '../../constants.dart';
+import '../tabbar/tabbar.dart';
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -146,8 +147,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         await _fetchPostsDetail(widget.post.id);
       } catch (e) {
         print('댓글 전송 오류: $e');
-      }
-      finally {
+      } finally {
         setState(() {
           _isLoading = false; // 로딩 종료
         });
@@ -184,6 +184,19 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent, // AppBar의 배경을 투명하게 설정
+        elevation: 0, // 그림자를 없애기 위해 elevation을 0으로 설정
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => FRTabbarScreen(
+                        initialTabIndex: 1) // FeedScreen이 두 번째 탭일 경우
+                    ));
+          },
+        ),
         title: Text(widget.post.title),
       ),
       body: SingleChildScrollView(
@@ -234,12 +247,14 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                 ),
                 Padding(
                   padding: EdgeInsets.all(10.0),
-                  child: Text(
-                    postDetail != null ? postDetail!.content : '로딩 중...',
-                    // 첫 번째 게시글의 내용을 표시
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      postDetail != null ? postDetail!.content : '로딩 중...',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -248,10 +263,24 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          "난이도: ${getKoreanDifficulty(widget.post.difficulty)}"),
-                      Text("예상 소요시간: ${widget.post.estimatedTime} 분"),
-                      Text("경로 길이: ${widget.post.totalDistance} km"),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "난이도: ${getKoreanDifficulty(widget.post.difficulty)}",
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "예상 소요 시간: ${widget.post.estimatedTime} 분",
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "경로 길이: ${widget.post.totalDistance} km",
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -260,7 +289,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     if (_isLoading)
                       // 로딩 중일 때 로딩 인디케이터 표시
                       Center(child: CircularProgressIndicator()),
-                     if (!_isLoading)
+                    if (!_isLoading)
                       // 로딩이 끝난 후 댓글 목록 표시
                       ListView.builder(
                         shrinkWrap: true,
@@ -269,8 +298,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         itemBuilder: (context, index) {
                           Comment comment = _comments[index];
                           // Base64 문자열에서 이미지 데이터 추출
-                          String base64AuthorImageUrl = comment.author.profileImage;
-                          Uint8List authorImageBytes = base64.decode(base64AuthorImageUrl.split(',')[1]);
+                          String base64AuthorImageUrl =
+                              comment.author.profileImage;
+                          Uint8List authorImageBytes =
+                              base64.decode(base64AuthorImageUrl.split(',')[1]);
 
                           return ListTile(
                             leading: CircleAvatar(
@@ -282,39 +313,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                           );
                         },
                       ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: profileImage != null
-                              ? MemoryImage(profileImage!)
-                              : null,
-                          radius: 20.0,
-                        ),
-                        SizedBox(height: 4.0),
-                        // 이미지와 이름 사이 간격
-                        Text(nickname ?? '', style: TextStyle(fontSize: 12.0)),
-                        // 사용자 이름
-                      ],
-                    ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: TextField(
-                        controller: _commentController,
-                        decoration: InputDecoration(
-                          hintText: '후기와 별점을 남겨주세요!',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () => _addComment(_commentController.text),
-                    ),
                   ],
                 ),
                 Padding(
@@ -334,6 +332,37 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       });
                     },
                   ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: profileImage != null
+                              ? MemoryImage(profileImage!)
+                              : null,
+                          radius: 20.0,
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(nickname ?? '', style: TextStyle(fontSize: 12.0)),
+                      ],
+                    ),
+                    SizedBox(width: 8.0),
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        decoration: InputDecoration(
+                          hintText: '후기와 별점을 남겨주세요!',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: () => _addComment(_commentController.text),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -453,21 +482,33 @@ class _FeedScreenState extends State<FeedScreen> {
     Uint8List authorImageBytes = base64.decode(base64authorImageUrl);
 
     return InkWell(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        // 결과를 받습니다.
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => PostDetailsScreen(post: post)),
         );
+        if (result != null) {
+          // 예를 들어, 결과로부터 댓글 수와 별점을 추출하여 UI를 업데이트합니다.
+          int commentsCount = result['commentsCount'];
+          double rating = result['rating'];
+        }
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Container(
-          width: double.infinity,
-          height: 380.0,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(25.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -526,7 +567,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           onPressed: () {},
                         ),
                         Text(
-                          '350',
+                          '${post.commentCount}', // 댓글 수 표시
                           style: TextStyle(
                             fontSize: 14.0,
                             fontWeight: FontWeight.w600,
@@ -558,7 +599,7 @@ class _FeedScreenState extends State<FeedScreen> {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 6),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
                 child: Row(
                   children: [
                     Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
@@ -567,13 +608,6 @@ class _FeedScreenState extends State<FeedScreen> {
                       child: Text('게시판',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold)),
-                    ),
-                    IconButton(
-                      iconSize: 28,
-                      icon: Image.asset(
-                          'assets/icons/tabbar/light/more_circle@2x.png',
-                          scale: 2),
-                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -608,6 +642,7 @@ class Post {
   String authorName;
   String authorImageUrl;
   String timeAgo;
+  int commentCount;
 
   Post({
     required this.id,
@@ -620,6 +655,7 @@ class Post {
     required this.authorName,
     required this.authorImageUrl,
     required this.timeAgo,
+    required this.commentCount,
   });
 
   // JSON에서 Post 객체로 변환하는 생성자
@@ -643,7 +679,9 @@ class Post {
           ? "data:image/png;base64,${json['member']['profileImage']}"
           : '',
       // null 체크 추가
-      timeAgo: "Some time ago", // 시간은 API 응답에 따라 조정
+      timeAgo: "Some time ago",
+      // 시간은 API 응답에 따라 조정
+      commentCount: json['commentCount'] ?? 0,
     );
   }
 }

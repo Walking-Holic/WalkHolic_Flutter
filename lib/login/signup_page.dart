@@ -31,19 +31,10 @@ class _SignupPageState extends State<SignupPage> {
   File? _profileImage;
   final storage = FlutterSecureStorage();
 
-  Future<File> _getLocalImageFile() async {
+  Future<File?> _getLocalImageFile() async {
     // _profileImage가 존재하면 그 경로를 사용합니다.
     if (_profileImage != null) return _profileImage!;
-
-    // 그렇지 않으면 기본 이미지를 임시 파일로 복사하고 그 경로를 사용합니다.
-    final byteData = await rootBundle.load('assets/icons/walkholic1.png');
-    final buffer = byteData.buffer;
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/default_profile.png';
-    final file = await File(tempPath).writeAsBytes(
-      buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-    );
-    return file;
+    else return null;
   }
 
   Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
@@ -55,12 +46,10 @@ class _SignupPageState extends State<SignupPage> {
         "name": name
       });
 
-      File imageFile = await _getLocalImageFile();
-
-      var stream = http.ByteStream(imageFile.openRead());
-      var length = await imageFile.length();
+      File? imageFile = await _getLocalImageFile();
 
       var request = http.MultipartRequest('POST', Url);
+
 
       request.files.add(http.MultipartFile.fromString(
         'dto',
@@ -68,16 +57,27 @@ class _SignupPageState extends State<SignupPage> {
         contentType: MediaType('application', 'json'), // Set content-type to application/json
       ));
 
-      request.files.add(http.MultipartFile(
-          'profileImage',
-          stream,
-          length,
-          filename: basename(imageFile.path),
-          contentType: MediaType('image', 'png') // 여기서 적절한 MIME 타입을 설정합니다.
-      ));
+      // 이미지 파일 처리
+      if (imageFile != null) {
+        var stream = http.ByteStream(imageFile.openRead());
+        var length = await imageFile.length();
 
-      print("1");
-      print(imageFile.path);
+        request.files.add(http.MultipartFile(
+            'profileImage',
+            stream,
+            length,
+            filename: basename(imageFile.path),
+            contentType: MediaType('image', 'png') // 적절한 MIME 타입 설정
+        ));
+      } else {
+        // 이미지 파일이 없는 경우, 빈 파일로 대체
+        request.files.add(http.MultipartFile.fromString(
+            'profileImage',
+            '',
+            contentType: MediaType('image', 'png')
+        ));
+      }
+
         try{
         var response = await http.Response.fromStream(await request.send());
 

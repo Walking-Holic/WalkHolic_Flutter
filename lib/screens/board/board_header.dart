@@ -17,12 +17,12 @@ class BoardHeader extends StatelessWidget {
                 child: Text('게시판', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               IconButton(
-                iconSize: 24,
+                iconSize: 28,
                 icon: Icon(Icons.search),
                 onPressed: () {},
               ),
               IconButton(
-                iconSize: 24,
+                iconSize: 28,
                 icon: Icon(Icons.more_vert),
                 onPressed: () {},
               ),

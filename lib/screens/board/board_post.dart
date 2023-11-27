@@ -91,7 +91,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     if (_image != null) return _image!;
 
     // 그렇지 않으면 기본 이미지를 임시 파일로 복사하고 그 경로를 사용합니다.
-    final byteData = await rootBundle.load('assets/icons/walkholic1.png');
+    final byteData = await rootBundle.load('assets/icons/board.png');
     final buffer = byteData.buffer;
     final tempDir = await getTemporaryDirectory();
     final tempPath = '${tempDir.path}/default_profile.png';
@@ -165,7 +165,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
             return MyAlertDialog(title: '처리 메시지', content: '게시물 등록이 완료되었습니다');
           }).then((_) {
         // 대화 상자가 닫힌 후에 실행될 코드
-        Navigator.push(context, MaterialPageRoute(builder: (context) => FRTabbarScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)));
       });   // 성공적으로 요청을 보냈을 때의 처리
       print('게시글 업로드 성공');
     } else {
