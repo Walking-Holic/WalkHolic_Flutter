@@ -45,7 +45,7 @@ dependencies:
   kakao_map_plugin: ^0.2.2
   location: ^5.0.3
   webview_flutter: ^4.4.2
-
+  flutter_map : ^4.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
