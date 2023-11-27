@@ -4,14 +4,16 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:fresh_store_ui/Source/LoginUser/login.dart';
 import 'package:fresh_store_ui/login/common/page_header.dart';
 import 'package:fresh_store_ui/login/common/page_heading.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
-import 'package:fresh_store_ui/login/common/custom_form_button.dart';
 import 'package:fresh_store_ui/login/common/custom_input_field.dart';
 import 'package:http/http.dart' as http;
 import 'package:fresh_store_ui/constants.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -29,35 +31,87 @@ class _SignupPageState extends State<SignupPage> {
   File? _profileImage;
   final storage = FlutterSecureStorage();
 
-  Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
-    try {
-      var Url = Uri.parse("http://$IP_address:8080/auth/register");
-      var response = await http.post(Url,
-          headers: <String, String>{"Content-Type": "application/json"},
-          body: jsonEncode(<String, String>{
-            "email": email,
-            "password": password,
-            "nickname": nickname,
-            "name": name,
-          }));
+  Future<File> _getLocalImageFile() async {
+    // _profileImage가 존재하면 그 경로를 사용합니다.
+    if (_profileImage != null) return _profileImage!;
 
-      if (response.statusCode == 200) {
+    // 그렇지 않으면 기본 이미지를 임시 파일로 복사하고 그 경로를 사용합니다.
+    final byteData = await rootBundle.load('assets/icons/walkholic1.png');
+    final buffer = byteData.buffer;
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = '${tempDir.path}/default_profile.png';
+    final file = await File(tempPath).writeAsBytes(
+      buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+    );
+    return file;
+  }
+
+  Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
+      var Url = Uri.parse("http://$IP_address:8080/auth/register");
+      var dto = jsonEncode({
+        "email": email,
+        "password": password,
+        "nickname": nickname,
+        "name": name
+      });
+
+      File imageFile = await _getLocalImageFile();
+
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+
+      var request = http.MultipartRequest('POST', Url);
+
+      request.files.add(http.MultipartFile.fromString(
+        'dto',
+        dto,
+        contentType: MediaType('application', 'json'), // Set content-type to application/json
+      ));
+
+      request.files.add(http.MultipartFile(
+          'profileImage',
+          stream,
+          length,
+          filename: basename(imageFile.path),
+          contentType: MediaType('image', 'png') // 여기서 적절한 MIME 타입을 설정합니다.
+      ));
+
+      print("1");
+      print(imageFile.path);
+        try{
+        var response = await http.Response.fromStream(await request.send());
+
+      print("2");
+        print('상태 코드: ${response.statusCode}');
+        print('Response: ${response.body}');
+
+        if (response.statusCode == 200) {
         showDialog(
             context: context,
             barrierDismissible: true,
             builder: (BuildContext dialogContext) {
-              return MyAlertDialog(title: '처리 메시지', content: '회원가입이 완료되었습니다');
-            });
+              return MyAlertDialog(
+                  title: '처리 메시지',
+                  content: '회원가입이 완료되었습니다'
+              );
+            }).then((_) {
+          // 대화 상자가 닫힌 후에 실행될 코드
+          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+        });
         return true;
       } else {
         final Map<String, dynamic> errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
-        final errorMessage = errorResponse["message"];
+        final errorMessage = errorResponse["message"] ?? '알 수 없는 오류가 발생했습니다.';
         showDialog(
             context: context,
             barrierDismissible: true,
             builder: (BuildContext dialogContext) {
               return MyAlertDialog(title: '오류 메시지', content: errorMessage);
-            });
+            },
+        ).then((_) {
+    // 대화 상자가 닫힌 후에 실행될 코드
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    });
         return false;
       }
     } catch (e) {
@@ -69,16 +123,16 @@ class _SignupPageState extends State<SignupPage> {
 
 
 
-  Future _pickProfileImage() async {
-    // try {
-    //   final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    //   if(image == null) return;
-    //
-    //   final imageTemporary = File(image.path);
-    //   setState(() => _profileImage = imageTemporary);
-    // } on PlatformException catch (e) {
-    //   debugPrint('Failed to pick image error: $e');
-    // }
+  Future<void> _pickProfileImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      final imageTemporary = File(image.path);
+      setState(() => _profileImage = imageTemporary);
+    } on PlatformException catch (e) {
+      debugPrint('Failed to pick image error: $e');
+    }
   }
 
   @override
@@ -235,7 +289,8 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-}class MyAlertDialog extends StatelessWidget {
+}
+class MyAlertDialog extends StatelessWidget {
   final String title;
   final String content;
 

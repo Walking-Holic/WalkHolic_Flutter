@@ -150,11 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverList(
-            delegate: SliverChildListDelegate.fixed([
+           SliverList(
+            delegate: SliverChildListDelegate([
+              ProfileHeader(),
               Padding(
                 padding: EdgeInsets.only(top: 30),
-                child: ProfileHeader(),
               ),
             ]),
           ),

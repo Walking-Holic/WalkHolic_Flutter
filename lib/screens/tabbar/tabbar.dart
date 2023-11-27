@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fresh_store_ui/image_loader.dart';
+import 'package:fresh_store_ui/screens/board/board_screen.dart';
 import 'package:fresh_store_ui/screens/home/home.dart';
 import 'package:fresh_store_ui/screens/profile/profile_screen.dart';
 import 'package:fresh_store_ui/screens/test/test_screen.dart';
 import 'package:fresh_store_ui/size_config.dart';
+import 'package:fresh_store_ui/screens/board/board_screen.dart';
 
 class TabbarItem {
   final String lightIcon;
@@ -37,7 +39,7 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
     const HomeScreen(
       title: '首页0',
     ),
-    const TestScreen(title: 'Post'),
+    FeedScreen(),
     const ProfileScreen(),
   ];
 

@@ -5,7 +5,6 @@ import 'package:fresh_store_ui/theme.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
-import 'package:fresh_store_ui/map.dart';
 
 const String kakaoMapKey = 'c7f0222c04ff0b7bb1656cf815b683d2';
 
