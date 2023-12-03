@@ -59,6 +59,7 @@ class _FeedScreenState extends State<FeedScreen> {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
+
       Response response = await dio.get('$IP_address/api/path',
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
@@ -306,7 +307,6 @@ class _FeedScreenState extends State<FeedScreen> {
                         });
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -471,8 +471,8 @@ class Post {
   int commentCount;
   String email; // 게시글 작성자의 이메일
   bool isCurrentUserPost; // 현재 사용자가 작성한 게시글인지 여부
-  bool isMarked;
   bool collection;
+
 
   Post({
     required this.id,
@@ -488,7 +488,6 @@ class Post {
     required this.commentCount,
     required this.email,
     this.isCurrentUserPost = false,
-    this.isMarked = false,
     required this.collection
   });
 

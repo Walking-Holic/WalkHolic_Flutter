@@ -6,6 +6,9 @@ import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fresh_store_ui/constants.dart';
+import 'package:path/path.dart' as path;
+
+import '../../login/update_profile.dart';
 
 import '../../login/update_profile.dart';
 
@@ -87,6 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
   Future<Map<String, dynamic>?> DeleteProfile() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
@@ -140,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           titleColor: const Color(0xFFF75555),
           onClick:() {
             Navigator.push(
-              context,
+              context as BuildContext,
               MaterialPageRoute(builder: (context) => const LoginPage()),
             );
           }
@@ -216,9 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildOption(BuildContext context, int index, ProfileOption data) {
     return ListTile(
       leading: data.icon,
-      title:
-        data.title,
-
+      title: data.title,
       trailing: data.trailing,
       onTap: data.onClick,
     );

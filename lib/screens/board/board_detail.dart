@@ -31,7 +31,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   int? id;
   String? rank;
   final storage = FlutterSecureStorage();
-
   bool _isLoading = false;
 
   @override
@@ -71,7 +70,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-
     try {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
@@ -536,7 +534,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                           // Base64 문자열에서 이미지 데이터 추출
                           String base64AuthorImageUrl = comment.author.profileImage;
                           Uint8List authorImageBytes = base64.decode(base64AuthorImageUrl.split(',')[1]);
-
                           return Column(
                             children: [
                               ListTile(
