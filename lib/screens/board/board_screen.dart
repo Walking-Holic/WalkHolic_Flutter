@@ -1,72 +1,26 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:fresh_store_ui/screens/board/board_header.dart';
 import 'package:fresh_store_ui/screens/board/board_post.dart';
 import 'package:dio/dio.dart';
-
+import 'package:fresh_store_ui/screens/tabbar/tabbar.dart';
+import 'package:http/http.dart' as http;
+import '../../Source/LoginUser/login.dart';
 import '../../constants.dart';
-import '../tabbar/tabbar.dart';
+import 'board_detail.dart';
 
 class FeedScreen extends StatefulWidget {
   @override
   _FeedScreenState createState() => _FeedScreenState();
 }
 
-class PostDetailsScreen extends StatefulWidget {
-  final Post post;
+@override
 
-  PostDetailsScreen({required this.post});
-
-  @override
-  _PostDetailsScreenState createState() => _PostDetailsScreenState();
-}
-
-class _PostDetailsScreenState extends State<PostDetailsScreen> {
-  final TextEditingController _commentController = TextEditingController();
-  List<Comment> _comments = [];
-  DetailPost? postDetail; // 현재 게시글의 상세 정보를 저장할 변수
-  double _rating = 3; // 초기 별점 값
-  Uint8List? profileImage;
-  String? nickname;
-
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchPostsDetail(widget.post.id);
-    _loadUserProfile();
-  }
-
-  Future<void> _fetchPostsDetail(int id) async {
-    setState(() {
-      _isLoading = true; // 로딩 시작
-    });
-
-    try {
-      Dio dio = Dio();
-      Response response = await dio.get('http://$IP_address:8080/api/path/$id');
-      print("실행");
-      print(response.statusCode);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          postDetail = DetailPost.fromJson(response.data);
-          _comments = postDetail!.comments;
-          _isLoading = false; // 로딩 완료// 댓글 데이터 저장// 상세 정보 저장
-        });
-      } else {
-        print('잘못된 Url 경로');
-      }
-    } catch (e) {
-      // 예외 처리
-      print('Error: $e');
-    }
-  }
+class _FeedScreenState extends State<FeedScreen> {
+  List<Post> posts = [];
+  String currentUserEmail = '';
+  String? email;
 
   Future<void> _loadUserProfile() async {
     final storage = FlutterSecureStorage();
@@ -75,7 +29,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
       Response response = await dio.get(
-        'http://$IP_address:8080/api/member/me',
+        '$IP_address/api/member/me',
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       print("실행");
@@ -84,12 +38,9 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = response.data;
         // 이미지 바이트 배열 추출
-        String base64String = responseData['profileImage'];
-        Uint8List imageBytes = base64.decode(base64String);
 
         setState(() {
-          profileImage = imageBytes;
-          nickname = responseData['nickname'];
+          email = responseData['email'];
         });
       } else {
         // 에러 처리
@@ -101,285 +52,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     }
   }
 
-  void _addComment(String commentText) async {
-    if (commentText.isNotEmpty) {
-      setState(() {
-        _isLoading = true; // 로딩 시작
-      });
-      // 댓글 객체 생성
-      Comment newComment = Comment(
-        contents: commentText,
-        score: _rating,
-        author: Author(
-          nickname: nickname ?? '익명',
-          // 현재 사용자의 닉네임
-          profileImage: profileImage != null ? base64Encode(profileImage!) : '',
-          // 현재 사용자의 프로필 이미지
-          email: '',
-          // 필요한 경우 이메일 추가
-          name: '',
-          // 필요한 경우 이름 추가
-          authority: '',
-          // 필요한 경우 권한 추가
-          rank: '',
-          // 필요한 경우 랭크 추가
-          walk: 0, // 필요한 경우 걸음 수 추가
-        ),
-      );
-
-      // 댓글을 로컬 상태에 추가
-      setState(() {
-        _comments.add(newComment);
-        _commentController.clear();
-      });
-
-      // 서버에 댓글 정보 전송
-      final storage = FlutterSecureStorage();
-      String? accessToken = await storage.read(key: 'accessToken');
-      Dio dio = Dio();
-      try {
-        Response response = await dio.post(
-          'http://$IP_address:8080/api/comment/save/${widget.post.id}',
-          options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
-          data: {"contents": commentText, "score": _rating},
-        );
-
-        await _fetchPostsDetail(widget.post.id);
-      } catch (e) {
-        print('댓글 전송 오류: $e');
-      } finally {
-        setState(() {
-          _isLoading = false; // 로딩 종료
-        });
-      }
-    }
-  }
-
-  String getKoreanDifficulty(String difficulty) {
-    switch (difficulty) {
-      case "UPPER":
-        return "상";
-      case "MIDDLE":
-        return "중";
-      case "LOWER":
-        return "하";
-      default:
-        return "미정"; // 난이도 정보가 없거나 매칭되지 않는 경우
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Base64 이미지 디코딩
-    String base64ImageUrl = widget.post.imageUrl;
-    if (base64ImageUrl.startsWith('data:image/png;base64,')) {
-      base64ImageUrl =
-          base64ImageUrl.substring('data:image/png;base64,'.length);
-    }
-    Uint8List imageBytes = base64.decode(base64ImageUrl);
-
-    String base64AuthorImageUrl = widget.post.authorImageUrl
-        .substring(widget.post.authorImageUrl.indexOf(',') + 1);
-    Uint8List authorImageBytes = base64.decode(base64AuthorImageUrl);
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, // AppBar의 배경을 투명하게 설정
-        elevation: 0, // 그림자를 없애기 위해 elevation을 0으로 설정
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => FRTabbarScreen(
-                        initialTabIndex: 1) // FeedScreen이 두 번째 탭일 경우
-                    ));
-          },
-        ),
-        title: Text(widget.post.title),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.grey[400],
-                    backgroundImage: MemoryImage(authorImageBytes),
-                  ),
-                  title: Text(
-                    widget.post.authorName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(widget.post.timeAgo),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                  child: Text(
-                    widget.post.title,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Image.memory(
-                  imageBytes,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      postDetail != null ? postDetail!.content : '로딩 중...',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "난이도: ${getKoreanDifficulty(widget.post.difficulty)}",
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "예상 소요 시간: ${widget.post.estimatedTime} 분",
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "경로 길이: ${widget.post.totalDistance} km",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  children: [
-                    if (_isLoading)
-                      // 로딩 중일 때 로딩 인디케이터 표시
-                      Center(child: CircularProgressIndicator()),
-                    if (!_isLoading)
-                      // 로딩이 끝난 후 댓글 목록 표시
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: _comments.length,
-                        itemBuilder: (context, index) {
-                          Comment comment = _comments[index];
-                          // Base64 문자열에서 이미지 데이터 추출
-                          String base64AuthorImageUrl =
-                              comment.author.profileImage;
-                          Uint8List authorImageBytes =
-                              base64.decode(base64AuthorImageUrl.split(',')[1]);
-
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: MemoryImage(authorImageBytes),
-                            ),
-                            title: Text(_comments[index].contents),
-                            subtitle: Text(_comments[index].author.nickname),
-                            trailing: Text(_comments[index].score.toString()),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: RatingBar.builder(
-                    initialRating: _rating,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                    itemBuilder: (context, _) =>
-                        Icon(Icons.star, color: Colors.amber),
-                    onRatingUpdate: (rating) {
-                      setState(() {
-                        _rating = rating;
-                      });
-                    },
-                  ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: profileImage != null
-                              ? MemoryImage(profileImage!)
-                              : null,
-                          radius: 20.0,
-                        ),
-                        SizedBox(height: 4.0),
-                        Text(nickname ?? '', style: TextStyle(fontSize: 12.0)),
-                      ],
-                    ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: TextField(
-                        controller: _commentController,
-                        decoration: InputDecoration(
-                          hintText: '후기와 별점을 남겨주세요!',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () => _addComment(_commentController.text),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FeedScreenState extends State<FeedScreen> {
-  List<Post> posts = [];
-
   void _fetchPosts() async {
     try {
       Dio dio = Dio();
-      Response response = await dio.get('http://$IP_address:8080/api/path');
+      Response response = await dio.get('$IP_address/api/path');
       print("실행");
       print(response.statusCode);
 
@@ -388,7 +64,10 @@ class _FeedScreenState extends State<FeedScreen> {
         List<Post> fetchedPosts = [];
 
         for (var postJson in responseData) {
-          fetchedPosts.add(Post.fromJson(postJson));
+          Post post = Post.fromJson(postJson);
+          post.isCurrentUserPost = post.email == email;
+          print('Post ID: ${post.id}, isCurrentUserPost: ${post.isCurrentUserPost}'); // 디버그 문
+          fetchedPosts.add(post);
         }
 
         setState(() {
@@ -406,8 +85,10 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserProfile();
     _fetchPosts();
   }
+
 
   void _showAddMenu() {
     showModalBottomSheet(
@@ -432,8 +113,8 @@ class _FeedScreenState extends State<FeedScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -451,8 +132,8 @@ class _FeedScreenState extends State<FeedScreen> {
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -467,8 +148,7 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 
-  Widget _buildPost(int index) {
-    final post = posts[index];
+  Widget _buildPost(Post post) {
 
     String base64ImageUrl = post.imageUrl;
     if (base64ImageUrl.startsWith('data:image/png;base64,')) {
@@ -483,17 +163,11 @@ class _FeedScreenState extends State<FeedScreen> {
 
     return InkWell(
       onTap: () async {
-        // 결과를 받습니다.
-        final result = await Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => PostDetailsScreen(post: post)),
         );
-        if (result != null) {
-          // 예를 들어, 결과로부터 댓글 수와 별점을 추출하여 UI를 업데이트합니다.
-          int commentsCount = result['commentsCount'];
-          double rating = result['rating'];
-        }
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -525,6 +199,12 @@ class _FeedScreenState extends State<FeedScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(post.timeAgo),
+                  trailing: post.isCurrentUserPost
+                      ? GestureDetector(
+                    onTap: () => _showPostOptions(context, post),
+                    child: Image.asset('assets/icons/category_others@2x.png', width: 24, height: 24),
+                  )
+                      : null,
                 ),
               ),
               Padding(
@@ -575,11 +255,6 @@ class _FeedScreenState extends State<FeedScreen> {
                         ),
                       ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.bookmark_border),
-                      iconSize: 30.0,
-                      onPressed: () => print('Save post'),
-                    ),
                   ],
                 ),
               ),
@@ -592,6 +267,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Post> reversedPosts = posts.reversed.toList();
+
     return Scaffold(
       backgroundColor: Color(0xFFEDF0F6),
       body: CustomScrollView(
@@ -616,8 +293,8 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildPost(index),
-              childCount: posts.length,
+                  (context, index) => _buildPost(reversedPosts[index]),
+              childCount: reversedPosts.length,
             ),
           ),
         ],
@@ -625,10 +302,107 @@ class _FeedScreenState extends State<FeedScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
+        backgroundColor: Colors.black,
         onPressed: _showAddMenu,
       ),
     );
   }
+}
+
+Future<void> deletePost(int postId, BuildContext context) async {
+
+  try {
+    String? accessToken = await storage.read(key: 'accessToken');
+
+    var Url = Uri.parse("$IP_address/api/path/delete/$postId"); //본인 IP 주소를  localhost 대신 넣기
+    var response = await http.delete(Url, // 서버의 프로필 정보 API
+      headers: <String, String>{
+        'Authorization': 'Bearer $accessToken'},
+    );
+
+    print(postId);
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      // 게시물 삭제 성공 처리
+      print('Post deleted successfully');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)),
+      ).then((_) {
+        // 여기에서 화면을 새로 고치는 로직
+      });
+    } else {
+      // 서버 응답 에러 처리
+      print('Failed to delete post: ${response.statusCode}');
+    }
+  } catch (e) {
+    // HTTP 요청 예외 처리
+    print('Error: $e');
+  }
+}
+
+void _showPostOptions(BuildContext context, Post post) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        height: 150, // 높이 설정
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.edit),
+              title: Text('게시물 수정'),
+              onTap: () async {
+                Navigator.pop(context); // 하단 시트 닫기
+
+                // 'NewPostScreen'으로 네비게이트 하며, 수정할 게시물 객체를 전달
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewPostScreen(postToEdit: post),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('게시물 삭제'),
+              onTap: () async {
+                Navigator.pop(context); // 하단 시트 닫기
+                // 삭제 확인 대화상자 표시
+                await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('게시물 삭제'),
+                      content: Text('정말 이 게시글을 삭제하시겠습니까?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('예'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            deletePost(post.id, context);
+                          },
+                        ),
+                        TextButton(
+                          child: Text('아니오'),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // '아니오' 선택 시
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class Post {
@@ -643,6 +417,8 @@ class Post {
   String authorImageUrl;
   String timeAgo;
   int commentCount;
+  String email; // 게시글 작성자의 이메일
+  bool isCurrentUserPost; // 현재 사용자가 작성한 게시글인지 여부
 
   Post({
     required this.id,
@@ -656,6 +432,8 @@ class Post {
     required this.authorImageUrl,
     required this.timeAgo,
     required this.commentCount,
+    required this.email,
+    this.isCurrentUserPost = false,
   });
 
   // JSON에서 Post 객체로 변환하는 생성자
@@ -682,6 +460,7 @@ class Post {
       timeAgo: "Some time ago",
       // 시간은 API 응답에 따라 조정
       commentCount: json['commentCount'] ?? 0,
+      email: json['member'] != null ? json['member']['email'] ?? '' : '', // 초기값 설정
     );
   }
 }
@@ -741,11 +520,13 @@ class Author {
 }
 
 class Comment {
+  int id;
   String contents;
   double score;
   Author author;
 
   Comment({
+    required this.id,
     required this.contents,
     required this.score,
     required this.author,
@@ -753,9 +534,10 @@ class Comment {
 
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
+      id : json['id'] as int,
       contents: json['contents'] ?? '',
       score: json['score']?.toDouble() ?? 0.0,
-      author: Author.fromJson(json['member']),
+      author: Author.fromJson(json['member'] as Map<String, dynamic>),
     );
   }
 }

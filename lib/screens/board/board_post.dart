@@ -10,12 +10,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-
+import 'package:fresh_store_ui/screens/board/board_screen.dart';
 import '../../constants.dart';
 import '../tabbar/tabbar.dart';
-import 'board_screen.dart';
+import 'package:dio/dio.dart';
+
+
 
 class NewPostScreen extends StatefulWidget {
+  final Post? postToEdit; // 수정할 게시물 객체
+
+  NewPostScreen({Key? key, this.postToEdit}) : super(key: key);
   @override
   _NewPostScreenState createState() => _NewPostScreenState();
 }
@@ -25,14 +30,82 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _contentController = TextEditingController(); // 게시글 내용을 위한 컨트롤러
   final _distanceController = TextEditingController(); // 게시글 거리를 위한 컨트롤러
   final _estimatedTimeController = TextEditingController(); // 예상 소요시간을 위한 컨트롤러
-
   String? _difficulty; // 경로의 난이도 설정을 위한 컨트롤러
-
   File? _image; // 선택한 이미지를 저장하기 위한 변수
-
+  DetailPost? postDetail;
+  bool _isLoading = false;
   final List<String> _difficultyOptions = ['상', '중', '하']; // 난이도 옵션
   List<Map<String, dynamic>> coordinates =
       []; // 카카오맵 사용자 경로 설정에서 받아올 경로 정보 들의 배열
+
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.postToEdit != null) {
+      _fetchPostsDetail(widget.postToEdit!.id).then((_) {
+        _loadExistingData(widget.postToEdit!);
+      });
+    }
+  }
+  Future<void> _fetchPostsDetail(int id) async {
+    setState(() {
+      _isLoading = true; // 로딩 시작
+    });
+
+    try {
+      Dio dio = Dio();
+      Response response = await dio.get('$IP_address/api/path/$id');
+      print("실행");
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          postDetail = DetailPost.fromJson(response.data);
+          var coordinateData = postDetail?.coordinates ?? [];
+          coordinates = coordinateData.map((coord) => {
+            "latitude": coord.latitude,
+            "longitude": coord.longitude,
+            "sequence": coord.sequence,
+          }).toList();
+
+          _isLoading = false; // 로딩 완료// 상세 정보 저장
+        });
+      } else {
+        print('잘못된 Url 경로');
+      }
+    } catch (e) {
+      // 예외 처리
+      print('Error: $e');
+    }
+  }
+
+
+  void _loadExistingData(Post post) {
+    _titleController.text = post.title;
+    if (postDetail != null) {
+      _contentController.text = postDetail!.content;
+    }
+    _distanceController.text = post.totalDistance.toString();
+    _estimatedTimeController.text = post.estimatedTime;
+
+    switch (post.difficulty) {
+      case 'UPPER':
+        _difficulty = '상';
+        break;
+      case 'MIDDLE':
+        _difficulty = '중';
+        break;
+      case 'LOWER':
+        _difficulty = '하';
+        break;
+      default:
+        _difficulty = null; // 또는 기본값 설정
+    }
+
+    // 다른 필드들도 이와 유사하게 설정
+    // 이미지 로드 및 다른 필드 설정도 필요에 따라 추가
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -50,6 +123,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       debugPrint('Failed to pick image error: $e');
     }
   }
+
 
   Map<String, dynamic> _collectUserData() {
     // 사용자의 입력값을 모아서 백으로 보내기 위해 정렬
@@ -86,19 +160,21 @@ class _NewPostScreenState extends State<NewPostScreen> {
     }
   }
 
-  Future<File> _getLocalImageFile() async {
-    // _profileImage가 존재하면 그 경로를 사용합니다.
-    if (_image != null) return _image!;
+  Future<File?> _getLocalImageFile() async {
+    if (_image != null) return _image;
 
-    // 그렇지 않으면 기본 이미지를 임시 파일로 복사하고 그 경로를 사용합니다.
+    // _profileImage가 없는 경우, asset에서 이미지 파일을 로드
     final byteData = await rootBundle.load('assets/icons/board.png');
     final buffer = byteData.buffer;
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/default_profile.png';
-    final file = await File(tempPath).writeAsBytes(
-      buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-    );
-    return file;
+
+    // 임시 디렉토리를 찾아 파일을 생성합니다.
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = tempDir.path;
+    File tempFile = File('$tempPath/board.png');
+    await tempFile.writeAsBytes(
+        buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return tempFile;
   }
 
   void _submitPost() async {
@@ -121,10 +197,20 @@ class _NewPostScreenState extends State<NewPostScreen> {
     final storage = FlutterSecureStorage();
     String? accessToken = await storage.read(key: 'accessToken');
 
-    var uri = Uri.parse('http://$IP_address:8080/api/path/save');
+    Uri uri;
+    http.MultipartRequest request;
 
-    var request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $accessToken';
+    if (widget.postToEdit == null) {
+      uri = Uri.parse('$IP_address/api/path/save');
+     request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $accessToken';// 새 게시물 작성
+    } else {
+      uri = Uri.parse('$IP_address/api/path/update/${widget.postToEdit!.id}'); // 게시물 수정
+      request = http.MultipartRequest('PATCH', uri);
+      request.headers['Authorization'] = 'Bearer $accessToken';
+    }
+
+    File? Image = await _getLocalImageFile();
 
     var jsonDto = jsonEncode({
       "title": userData['title'],
@@ -135,23 +221,29 @@ class _NewPostScreenState extends State<NewPostScreen> {
       "coordinates": coordinates
     });
 
-    File Image = await _getLocalImageFile();
-
-    var stream = http.ByteStream(Image.openRead());
-    var length = await Image.length();
-
     request.files.add(http.MultipartFile.fromString(
       'dto', // 서버에서 기대하는 필드 이름
       jsonDto,
       contentType: MediaType('application', 'json'),
     ));
 
-    request.files.add(http.MultipartFile('pathImage',
-        stream,
-        length,
-        filename: path.basename(Image.path),
-        contentType: MediaType('image', 'png') // 여기서 적절한 MIME 타입을 설정합니다.
-        ));
+    if (Image != null) {
+      var stream = http.ByteStream(Image.openRead());
+      var length = await Image.length();
+
+      request.files.add(http.MultipartFile('pathImage',
+          stream,
+          length,
+          filename: path.basename(Image.path),
+          contentType: MediaType('image', 'png') // 여기서 적절한 MIME 타입을 설정합니다.
+      ));
+    } else {
+      request.files.add(http.MultipartFile.fromString(
+          'profileImage',
+          '',
+          contentType: MediaType('image', 'png')
+      ));
+    }
 
     print(jsonDto);
 

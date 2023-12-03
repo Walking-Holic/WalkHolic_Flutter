@@ -24,7 +24,7 @@ final storage = FlutterSecureStorage();
 Future<bool> loginUsers(
     String email, String password, BuildContext context) async {
   try {
-    var Url = Uri.parse("http://$IP_address:8080/auth/login"); //본인 IP 주소를  localhost 대신 넣기
+    var Url = Uri.parse("$IP_address/auth/login"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{

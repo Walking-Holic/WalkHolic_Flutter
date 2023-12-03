@@ -31,7 +31,7 @@ class _ProfileHeaderState extends State<ProfileHeader>{
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
       Response response = await dio.get(
-        'http://$IP_address:8080/api/member/me',
+        '$IP_address/api/member/me',
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       print("실행");
@@ -85,17 +85,8 @@ class _ProfileHeaderState extends State<ProfileHeader>{
                 radius: 60,
               )
                   : const CircleAvatar(
-                backgroundImage: AssetImage('$kIconPath/walkholic1.png'), // 기본 이미지
+                backgroundImage: AssetImage('$kIconPath/board1.png'), // 기본 이미지
                 radius: 60,
-              ),
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: InkWell(
-                  child: Image.asset('assets/icons/profile/edit_square@2x.png', scale: 2),
-                  onTap: () {},
-                ),
               ),
             ),
           ],
@@ -108,7 +99,7 @@ class _ProfileHeaderState extends State<ProfileHeader>{
         const SizedBox(height: 8),
         Container(
           color: const Color(0xFFEEEEEE),
-          height: 1,
+          height: 10,
           padding: const EdgeInsets.symmetric(horizontal: 24),
         )
       ],

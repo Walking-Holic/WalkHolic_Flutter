@@ -4,14 +4,16 @@ import 'package:fresh_store_ui/screens/profile/header.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:fresh_store_ui/Source/LoginUser/userInfo.dart';
 import 'package:fresh_store_ui/constants.dart';
+import 'package:path/path.dart' as path;
+
+import '../../login/update_profile.dart';
 
 typedef ProfileOptionTap = void Function();
 
 class ProfileOption {
   String title;
-  String icon;
+  Widget icon;
   Color? titleColor;
   ProfileOptionTap? onClick;
   Widget? trailing;
@@ -44,14 +46,26 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? profileData;
-  static _profileIcon(String last) => 'assets/icons/profile/$last';
   final storage = FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndSetProfileData();
+  }
+
+  void _fetchAndSetProfileData() async {
+    profileData = await fetchProfile();
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   Future<Map<String, dynamic>?> fetchProfile() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
 
-      var Url = Uri.parse("http://$IP_address:8080/api/member/me");
+      var Url = Uri.parse("$IP_address/api/member/me");
       var response = await http.get(Url, // 서버의 프로필 정보 API
         headers: <String, String>{
           'Authorization': 'Bearer $accessToken'},
@@ -73,77 +87,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  bool _isDark = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchAndSetProfileData();
-  }
-
-  void _fetchAndSetProfileData() async {
-    profileData = await fetchProfile();
-    if (mounted) {
-      setState(() {});
-    }
-  }
   get datas => profileData != null ? <ProfileOption>[
-        ProfileOption(title: '이메일: ${profileData?['email']}' , icon: _profileIcon('shield_done@2x.png')),
-        ProfileOption(title:'닉네임: ${profileData?['nickname']}',icon: _profileIcon('user@2x.png')),
-        ProfileOption(title: '랭크: ${profileData?['rank']}', icon:_profileIcon('show@2x.png')),
-        ProfileOption(title: '걸음 수: ${profileData?['walk']}', icon:_profileIcon('location@2x.png')),
+        ProfileOption(title: '내 정보 확인' ,
+            icon: Icon(Icons.account_circle, color: Colors.black87),
+            onClick: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => getUserInfo()),
+        );},
+        ),
+        ProfileOption(title: '프로필 수정',
+          icon: Icon(Icons.edit, color: Colors.black87),
+          onClick: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+            );
+        }),
+        ProfileOption(title: '알람 설정', icon: Icon(Icons.alarm, color: Colors.black87)),
+        ProfileOption(title: '내가 작성한 글보기', icon: Icon(Icons.bookmark, color: Colors.black87)),
+        ProfileOption(title: '븍마크 한 글보기', icon: Icon(Icons.bookmark, color: Colors.black87)),
         ProfileOption(
-          title: 'Logout',
-          icon: _profileIcon('logout@2x.png'),
+          title: '로그아웃',
+          icon: Icon(Icons.logout, color: Colors.red),
           titleColor: const Color(0xFFF75555),
           onClick:() {
             Navigator.push(
-              context,
+              context as BuildContext,
               MaterialPageRoute(builder: (context) => const LoginPage()),
             );
           }
         ),
       ] : [];
-
-  void _viewProfile() {
-    print("눌림");
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => getUserInfo()),
-    );
-  }
-
-
-  /*_languageOption() => ProfileOption(
-      title: 'Language',
-      icon: _profileIcon('more_circle@2x.png'),
-      trailing: SizedBox(
-        width: 150,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const Text(
-              'English (US)',
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, color: Color(0xFF212121)),
-            ),
-            const SizedBox(width: 16),
-            Image.asset('assets/icons/profile/arrow_right@2x.png', scale: 2)
-          ],
-        ),
-      ));
-
-  _darkModel() => ProfileOption(
-      title: 'Dark Mode',
-      icon: _profileIcon('show@2x.png'),
-      trailing: Switch(
-        value: _isDark,
-        activeColor: const Color(0xFF212121),
-        onChanged: (value) {
-          setState(() {
-            _isDark = !_isDark;
-          });
-        },
-      ));*/
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +128,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
            SliverList(
             delegate: SliverChildListDelegate([
               ProfileHeader(),
-              Padding(
-                padding: EdgeInsets.only(top: 30),
-              ),
             ]),
           ),
           _buildBody(),
@@ -166,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildBody() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 10.0),
+      padding: const EdgeInsets.only(top: 1),
       sliver: profileData != null ? SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -175,13 +147,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           childCount: datas.length,
         ),
-      ): SliverToBoxAdapter(child: CircularProgressIndicator()),
+      ): const SliverToBoxAdapter(child: CircularProgressIndicator()),
     );
   }
 
   Widget _buildOption(BuildContext context, int index, ProfileOption data) {
     return ListTile(
-      leading: Image.asset(data.icon, scale: 2),
+      leading: data.icon,
       title: Text(
         data.title,
         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, color: data.titleColor),
@@ -200,14 +172,13 @@ class getUserInfo extends StatefulWidget {
 }
 
 class _getUserInfoState extends State<getUserInfo> {
-
   final storage = FlutterSecureStorage();
 
   Future<Map<String, dynamic>?> fetchProfile() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
 
-      var Url = Uri.parse("http://$IP_address:8080/api/member/me");
+      var Url = Uri.parse("$IP_address/api/member/me");
       var response = await http.get(Url, // 서버의 프로필 정보 API
         headers: <String, String>{
           'Authorization': 'Bearer $accessToken'},
@@ -261,7 +232,6 @@ class _getUserInfoState extends State<getUserInfo> {
                 Text('닉네임: ${profileData['nickname']}', style: TextStyle(fontSize: 20)),
                 Text('랭크: ${profileData['rank']}', style: TextStyle(fontSize: 20)),
                 Text('걸음 수: ${profileData['walk']}', style: TextStyle(fontSize: 20)),
-                // 여기에 추가 프로필 정보를 표시
               ],
             ),
           );

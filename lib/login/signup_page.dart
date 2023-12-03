@@ -32,13 +32,24 @@ class _SignupPageState extends State<SignupPage> {
   final storage = FlutterSecureStorage();
 
   Future<File?> _getLocalImageFile() async {
-    // _profileImage가 존재하면 그 경로를 사용합니다.
-    if (_profileImage != null) return _profileImage!;
-    else return null;
+    if (_profileImage != null) return _profileImage;
+
+    // _profileImage가 없는 경우, asset에서 이미지 파일을 로드
+    final byteData = await rootBundle.load('assets/icons/board1.png');
+    final buffer = byteData.buffer;
+
+    // 임시 디렉토리를 찾아 파일을 생성합니다.
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = tempDir.path;
+    File tempFile = File('$tempPath/board1.png');
+    await tempFile.writeAsBytes(
+        buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return tempFile;
   }
 
   Future<bool> registerUsers(String email, String password, String nickname, String name, BuildContext context) async {
-      var Url = Uri.parse("http://$IP_address:8080/auth/register");
+      var Url = Uri.parse("$IP_address/auth/register");
       var dto = jsonEncode({
         "email": email,
         "password": password,
@@ -118,7 +129,6 @@ class _SignupPageState extends State<SignupPage> {
       print('서버 연결 오류: $e');
       throw Exception('서버 연결 오류: $e');
     }
-    return false;
   }
 
 
@@ -207,6 +217,7 @@ class _SignupPageState extends State<SignupPage> {
                           hintText: '비밀번호를 작성해주세요',
                           isDense: true,
                           obscureText: true,
+                          suffixIcon: true,
                           validator: (textValue) {
                             if(textValue == null || textValue.isEmpty) {
                               return '작성해주세요!!';
@@ -243,23 +254,32 @@ class _SignupPageState extends State<SignupPage> {
                           }
                           return null;
                         },
-                        suffixIcon: true,
                       ),
                       const SizedBox(height: 22,),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_signupFormKey.currentState!.validate()) {
-
-                            registerUsers(
-                                emailController.text,
-                                passwordController.text,
-                                nicknameController.text,
-                                nameController.text,
-                                context
-                            );
-                          }
-                        },
-                        child: Text('회원가입'),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.8, // 화면 너비의 80%
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_signupFormKey.currentState!.validate()) {
+                              registerUsers(
+                                  emailController.text,
+                                  passwordController.text,
+                                  nicknameController.text,
+                                  nameController.text,
+                                  context
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            textStyle: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15.0,
+                            ),
+                          ),
+                          child: Text('회원가입'),
+                        ),
                       ),
                       const SizedBox(height: 18,),
                       SizedBox(
@@ -288,7 +308,6 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-
 }
 class MyAlertDialog extends StatelessWidget {
   final String title;
