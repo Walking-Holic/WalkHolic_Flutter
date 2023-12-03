@@ -149,7 +149,7 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xffEEF1F3),
+        backgroundColor: const Color(0xFFF4EDDB),
         body: SingleChildScrollView(
           child: Form(
             key: _signupFormKey,
@@ -271,11 +271,11 @@ class _SignupPageState extends State<SignupPage> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
+                            backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
                             textStyle: TextStyle(
                               fontWeight: FontWeight.w900,
-                              fontSize: 15.0,
+                              fontSize: 18.0,
                             ),
                           ),
                           child: Text('회원가입'),
@@ -287,12 +287,12 @@ class _SignupPageState extends State<SignupPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Already have an account ? ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
+                            const Text('이미 계정이 존재합니까?  ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
                             GestureDetector(
                               onTap: () => {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()))
                               },
-                              child: const Text('Log-in', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
+                              child: const Text('로그인', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
                             ),
                           ],
                         ),

@@ -92,8 +92,9 @@ class GuideScreen extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'SKIP',
-                style: TextStyle(color: Colors.white),
+                '시작하기',
+                style: TextStyle(color: Colors.white, fontSize: 20,
+                  fontWeight: FontWeight.w900,),
               ),
             ),
           ),

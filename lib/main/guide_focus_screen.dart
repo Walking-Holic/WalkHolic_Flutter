@@ -1,56 +1,63 @@
 import 'package:flutter/material.dart';
 
 class GuideFocusScreen extends StatelessWidget {
-  const GuideFocusScreen({super.key});
+  const GuideFocusScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4EDDB),
-      body: SizedBox(
-        height: 570,
-        child: Column(
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(
-                right: 150,
+      body: Center(
+        child: SizedBox(
+          height: 570,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
+            crossAxisAlignment: CrossAxisAlignment.center, // 가로 중앙 정렬
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 250,
+                ),
+                child: Text(
+                  "2. 커뮤니티",
+                  style: TextStyle(
+                    color: Color(0xFFE7626C),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 35,
+                  ),
+                ),
               ),
-              child: Text(
-                "커뮤니티",
+              const SizedBox(
+                height: 50,
+              ),
+              Text(
+                '사용자끼리 산책로를 공유하고',
                 style: TextStyle(
-                  color: Color(0xFFE7626C),
-                  fontSize: 35,
+                  color: Color(
+                    0xFF232B55,
+                  ),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            const Text(
-              '사용자끼리 산책로를 공유하고',
-              style: TextStyle(
-                color: Color(
-                  0xFF232B55,
+              Text(
+                '후기를 작성해보세요',
+                style: TextStyle(
+                  color: Color(
+                    0xFF232B55,
+                  ),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
                 ),
-                fontSize: 25,
               ),
-            ),
-            const Text(
-              '후기를 작성해보세요',
-              style: TextStyle(
-                color: Color(
-                  0xFF232B55,
-                ),
-                fontSize: 25,
+              const SizedBox(
+                height: 90,
               ),
-            ),
-            const SizedBox(
-              height: 90,
-            ),
-            Image.asset(
-              'assets/icons/main2.png',
-            ),
-          ],
+              Image.asset(
+                'assets/icons/main2.png',
+              ),
+            ],
+          ),
         ),
       ),
     );

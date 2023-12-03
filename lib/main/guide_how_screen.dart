@@ -16,9 +16,10 @@ class GuideHowScreen extends StatelessWidget {
                 right: 150,
               ),
               child: Text(
-                "주변 산책로 확인",
+                "1. 주변 산책로 확인",
                 style: TextStyle(
                   color: Color(0xFFE7626C),
+                  fontWeight: FontWeight.w900,
                   fontSize: 35,
                 ),
               ),
@@ -32,6 +33,7 @@ class GuideHowScreen extends StatelessWidget {
                 color: Color(
                   0xFF232B55,
                 ),
+                fontWeight: FontWeight.w900,
                 fontSize: 25,
               ),
             ),
@@ -41,6 +43,7 @@ class GuideHowScreen extends StatelessWidget {
                 color: Color(
                   0xFF232B55,
                 ),
+                fontWeight: FontWeight.w900,
                 fontSize: 25,
               ),
             ),

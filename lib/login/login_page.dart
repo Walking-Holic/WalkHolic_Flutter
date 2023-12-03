@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xffEEF1F3),
+        backgroundColor: const Color(0xFFF4EDDB),
         body: Column(
           children: [
             const PageHeader(),
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                     key: _loginFormKey,
                     child: Column(
                       children: [
-                        const PageHeading(title: 'Log-in',),
+                        const PageHeading(title: '로그인',),
                         CustomInputField(controller: emailController,
                             labelText: '이메일',
                             hintText: '이메일을 작성해주세요',
@@ -146,12 +146,11 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                         const SizedBox(height: 20,),
-                        SizedBox(
-                          width: 650,
-                          height: 45,
-
+                        Container(
+                          width: size.width * 0.9,
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
                           child: ElevatedButton(
-                            child: Text('로그인'),
+                            child: Text('로그인', style: TextStyle(color: Colors.white,fontSize: 18, fontWeight: FontWeight.w900,)),
                             onPressed: () async {
                               String email = emailController.text;
                               String password = passwordController.text;
@@ -176,18 +175,19 @@ class _LoginPageState extends State<LoginPage> {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)
-                                )
+                                    borderRadius: BorderRadius.circular(20)
+                                ),
+                              elevation: 3,
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 20,),
-                        SizedBox(
-                          width: 650,
-                          height: 45,
+                        const SizedBox(height: 15,),
+                        Container(
+                          width: size.width * 0.9,
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
                           child: ElevatedButton(
-                            child: Text('카카오 로그인', style: TextStyle(color: Colors.black),),
+                            child: Text('카카오 로그인', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900,),),
                             onPressed: () async {
                               final code = await Navigator.push(
                                 context,
@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                            style: ElevatedButton.styleFrom(
                              backgroundColor: Colors.yellow,
                              shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(10)
+                               borderRadius: BorderRadius.circular(20)
                              )
                            ),
 
@@ -228,12 +228,12 @@ class _LoginPageState extends State<LoginPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Don\'t have an account ? ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
+                              const Text('계정이 없으신가요?  ', style: TextStyle(fontSize: 13, color: Color(0xff939393), fontWeight: FontWeight.bold),),
                               GestureDetector(
                                 onTap: () => {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupPage()))
                                 },
-                                child: const Text('Sign-up', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
+                                child: const Text('회원가입', style: TextStyle(fontSize: 15, color: Color(0xff748288), fontWeight: FontWeight.bold),),
                               ),
                             ],
                           ),
