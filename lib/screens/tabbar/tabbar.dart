@@ -5,7 +5,7 @@ import 'package:fresh_store_ui/screens/home/home.dart';
 import 'package:fresh_store_ui/screens/profile/profile_screen.dart';
 import 'package:fresh_store_ui/screens/test/test_screen.dart';
 import 'package:fresh_store_ui/size_config.dart';
-import 'package:fresh_store_ui/screens/board/board_screen.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 class TabbarItem {
   final String lightIcon;
@@ -41,6 +41,7 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
       title: '홈',
     ),
     FeedScreen(),
+    TestScreen(),
     const ProfileScreen(),
   ];
 
@@ -62,17 +63,28 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
     BottomNavigationBarItem(
       icon: generateIcon('light/Home@2x.png'),
       activeIcon: generateIcon('bold/Home@2x.png'),
-      label: 'Home',
+      label: '홈',
     ),
     BottomNavigationBarItem(
       icon: generateIcon('light/Wallet@2x.png'),
       activeIcon: generateIcon('bold/Wallet@2x.png'),
-      label: 'Post',
+      label: '게시판',
+    ),
+    BottomNavigationBarItem(
+      icon: Padding(
+        padding: EdgeInsets.only(bottom: 5), // 아래쪽 패딩으로 간격 조절
+        child: Icon(WeatherIcons.day_sunny),
+      ),
+      activeIcon: Padding(
+        padding: EdgeInsets.only(bottom: 5), // 아래쪽 패딩으로 간격 조절
+        child: Icon(WeatherIcons.day_sunny_overcast),
+      ),
+      label: '날씨',
     ),
     BottomNavigationBarItem(
       icon: generateIcon('light/Profile@2x.png'),
       activeIcon: generateIcon('bold/Profile@2x.png'),
-      label: 'Profile',
+      label: '프로필',
     ),
   ];
 

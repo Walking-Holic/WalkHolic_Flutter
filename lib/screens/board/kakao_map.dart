@@ -16,8 +16,8 @@ class KakaoMapTest extends StatefulWidget {
 
 class _KakaoMapTestState extends State<KakaoMapTest> {
   late KakaoMapController mapController; // callback 처리를 위한 controller
-
   Set<Marker> markers = {}; // 마커 변수
+
   loc.Location location = loc.Location(); // 위치 받아오는 라이브러리
   Set<Polyline> polylines = {};
   Set<LatLng> points = {};
@@ -76,7 +76,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     int sequence = 1;
 
     for (LatLng point in points) {
-      print('  LatLng(${point.latitude}, ${point.longitude})');
+      print('LatLng(${point.latitude}, ${point.longitude})');
 
       // 각 위치에 대한 정보를 Map으로 추가
       coordinates.add({
@@ -145,6 +145,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                     ),
                     );
                     points.add(_startPoint!);
+                    mapController.setCenter(point);
                   } else {
                     _endPoint = point;
                     markers.add(Marker(
@@ -159,16 +160,18 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                     polylines.add(Polyline(
                       polylineId: 'polyline${polylines.length}',
                       points: [_startPoint!, _endPoint!],
-                      strokeColor: Colors.blue,
-                      strokeOpacity: 1,
-                      strokeWidth: 10,
+                      strokeColor: Colors.green,
+                      strokeOpacity: 5,
+                      strokeWidth: 5,
                       strokeStyle: StrokeStyle.solid,
                     ),
                     );
                     points.add(_endPoint!);
 
+
                     // 다음 경로를 위해 시작 지점 업데이트
                     _startPoint = _endPoint;
+                    mapController.setCenter(point);
                   }
                 });
               },
