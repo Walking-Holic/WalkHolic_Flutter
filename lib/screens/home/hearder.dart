@@ -59,7 +59,13 @@ class _HomeAppBarState extends State<HomeAppBar> {
       future: _loadUserProfile(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: SizedBox(
+              width: 50.0,  // 원하는 너비 설정
+              height: 50.0, // 원하는 높이 설정
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         if (snapshot.hasError || !snapshot.hasData) {

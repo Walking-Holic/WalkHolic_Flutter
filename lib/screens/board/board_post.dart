@@ -10,11 +10,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:fresh_store_ui/screens/board/board_screen.dart';
 import '../../constants.dart';
 import '../tabbar/tabbar.dart';
 import 'package:dio/dio.dart';
-
+import 'package:fresh_store_ui/model/post_model.dart';
 
 
 class NewPostScreen extends StatefulWidget {
@@ -37,7 +36,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final List<String> _difficultyOptions = ['상', '중', '하']; // 난이도 옵션
   List<Map<String, dynamic>> coordinates =
       []; // 카카오맵 사용자 경로 설정에서 받아올 경로 정보 들의 배열
-
+  final storage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -54,8 +53,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
     });
 
     try {
+      String? accessToken = await storage.read(key: 'accessToken');
+
       Dio dio = Dio();
-      Response response = await dio.get('$IP_address/api/path/$id');
+      Response response = await dio.get('$IP_address/api/path/$id',
+          options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+    );
       print("실행");
       print(response.statusCode);
 

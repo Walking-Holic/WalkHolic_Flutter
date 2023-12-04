@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:fresh_store_ui/Source/LoginUser/login.dart';
+import 'package:fresh_store_ui/screens/board/board_marked.dart';
 import 'package:fresh_store_ui/screens/profile/header.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import 'package:fresh_store_ui/constants.dart';
-import 'package:path/path.dart' as path;
-
 import '../../login/update_profile.dart';
-
-import '../../login/update_profile.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:fresh_store_ui/model/notification_service.dart';
 
 typedef ProfileOptionTap = void Function();
 
@@ -50,6 +49,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? profileData;
   final storage = FlutterSecureStorage();
+  final now = DateTime.now().add(Duration(hours: 9));
+  late TimeOfDay _newTime = TimeOfDay(hour: now.hour, minute: now.minute);
 
   @override
   void initState() {
@@ -61,6 +62,132 @@ class _ProfileScreenState extends State<ProfileScreen> {
     profileData = await fetchProfile();
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  Future<void> _scheduleNotification(DateTime scheduledTime) async {
+    // 권한 확인
+    var status = await Permission.scheduleExactAlarm.status;
+    print('Notification Permission status: $status');
+
+    if (status.isGranted) {
+      // 알림 스케줄링
+      NotificationService().scheduleNotification(
+          scheduledTime
+      );
+    } else {
+      // 권한이 없으면 권한 요청
+      var result = await Permission.scheduleExactAlarm.request();
+      if (result.isGranted) {
+        // 권한 허용 시 알림 스케줄링
+        NotificationService().scheduleNotification(
+            scheduledTime
+        );
+      } else {
+        // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
+        print('Notification Permission denied');
+      }
+    }
+  }
+
+  void showCustomToast(BuildContext context, String message) {
+    var overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 50.0,
+        left: MediaQuery.of(context).size.width * 0.1,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.alarm, color: Colors.white), // 여기서 아이콘을 설정합니다.
+                SizedBox(width: 8.0),
+                Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context)?.insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 3)).then((value) {
+      overlayEntry.remove();
+    });
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _newTime,
+    );
+    if (picked != null) {
+      // TimeOfDay를 DateTime으로 변
+      DateTime selectedDateTime;
+      // 현재 시간의 이전 시간으로 설정
+      final pickedDateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+
+      if (pickedDateTime.isBefore(now)) {
+        // 예를 들어, 현재 시간이 10:30이고 사용자가 09:00으로 설정하면
+        // 알림은 내일 09:00에 예약됩니다.
+        selectedDateTime = pickedDateTime.add(Duration(days: 1));
+      } else {
+        selectedDateTime = pickedDateTime;
+      }
+
+      print('선택한 알림 시간: $selectedDateTime');
+      print('현재 시각: $now');
+
+      setState(() {
+        _newTime = picked;
+        _scheduleNotification(selectedDateTime);
+      });
+      showCustomToast(
+        context,
+        "${selectedDateTime.day}일 ${picked.hour}시 ${picked.minute}분에 알림이 설정되었습니다",
+      );
+    }
+  }
+
+
+
+  void _requestNotificationPermissions() async {
+    final status = await NotificationService().requestNotificationPermissions();
+    print('Notification Permission Status: $status');
+    if (status.isDenied && context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('알림 권한이 거부되었습니다.'),
+          content: Text('알림을 받으려면 앱 설정에서 권한을 허용해야 합니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('설정'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+            ),
+            TextButton(
+              child: Text('취소'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -136,8 +263,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => ProfileEditScreen()),
             );
         }),
-        ProfileOption(title: Text('알람 설정'), icon: Icon(Icons.alarm, color: Colors.black87)),
-        ProfileOption(title: Text('북마크 한 글보기'), icon: Icon(Icons.bookmark, color: Colors.black87)),
+        ProfileOption(title: Text('알람 설정'),
+            icon: Icon(Icons.alarm, color: Colors.black87),
+          onClick: () {
+            _requestNotificationPermissions();
+            _selectTime(context);
+            },
+        ),
+        ProfileOption(title: Text('북마크 한 글보기'),
+            icon: Icon(Icons.bookmark, color: Colors.black87),
+          onClick: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MarkFeedScreen()),
+            );},
+        ),
         ProfileOption(
           title: Text('로그아웃'),
           icon: Icon(Icons.logout, color: Colors.red),
@@ -273,7 +413,13 @@ class _getUserInfoState extends State<getUserInfo> {
         future: fetchProfile(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: SizedBox(
+                width: 50.0,  // 원하는 너비 설정
+                height: 50.0, // 원하는 높이 설정
+                child: CircularProgressIndicator(),
+              ),
+            );
           }
 
           if (snapshot.hasError) {
@@ -301,5 +447,30 @@ class _getUserInfoState extends State<getUserInfo> {
         },
       ),
     );
+  }
+
+  Future<void> _scheduleNotification(DateTime scheduledTime) async {
+    // 권한 확인
+    var status = await Permission.scheduleExactAlarm.status;
+    print('Notification Permission status: $status');
+
+    if (status.isGranted) {
+      // 알림 스케줄링
+      NotificationService().scheduleNotification(
+          scheduledTime
+      );
+    } else {
+      // 권한이 없으면 권한 요청
+      var result = await Permission.scheduleExactAlarm.request();
+      if (result.isGranted) {
+        // 권한 허용 시 알림 스케줄링
+        NotificationService().scheduleNotification(
+            scheduledTime
+        );
+      } else {
+        // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
+        print('Notification Permission denied');
+      }
+    }
   }
 }

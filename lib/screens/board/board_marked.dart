@@ -11,25 +11,22 @@ import '../../constants.dart';
 import '../../model/rank_image.dart';
 import 'board_detail.dart';
 import 'package:fresh_store_ui/model/post_model.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-
-class FeedScreen extends StatefulWidget {
+class MarkFeedScreen extends StatefulWidget {
   @override
-  _FeedScreenState createState() => _FeedScreenState();
+  _MarkFeedScreenState createState() => _MarkFeedScreenState();
 }
 
 @override
 
-class _FeedScreenState extends State<FeedScreen> {
+class _MarkFeedScreenState extends State<MarkFeedScreen> {
   List<Post> posts = [];
   String currentUserEmail = '';
   String? email;
   String? rank;
+  final storage = FlutterSecureStorage();
 
   Future<void> _loadUserProfile() async {
-    final storage = FlutterSecureStorage();
-
     try {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
@@ -76,8 +73,10 @@ class _FeedScreenState extends State<FeedScreen> {
         for (var postJson in responseData) {
           Post post = Post.fromJson(postJson);
           post.isCurrentUserPost = post.email == email;
-          print('Post ID: ${post.id}, isCurrentUserPost: ${post.isCurrentUserPost}'); // 디버그 문
-          fetchedPosts.add(post);
+
+          if (post.collection) {
+            fetchedPosts.add(post);
+          }
         }
 
         setState(() {
@@ -93,18 +92,20 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void markPost(int pathId) async {
-      String? accessToken = await storage.read(key: 'accessToken');
-      Dio dio = Dio();
-      Response response = await dio.post('$IP_address/api/path/collection/$pathId',
-        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
-      );
-      print(response.statusCode);
-    }
+    String? accessToken = await storage.read(key: 'accessToken');
+    Dio dio = Dio();
+    Response response = await dio.post(
+      '$IP_address/api/path/collection/$pathId',
+      options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+    );
+    print(response.statusCode);
+  }
 
   void unMarkPost(int pathId) async {
     String? accessToken = await storage.read(key: 'accessToken');
     Dio dio = Dio();
-    Response response = await dio.delete('$IP_address/api/path/collection/$pathId',
+    Response response = await dio.delete(
+      '$IP_address/api/path/collection/$pathId',
       options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
     );
     print(response.statusCode);
@@ -119,73 +120,14 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
 
-  void _showAddMenu() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // 실제 내용의 크기만큼만 차지하도록 설정
-            children: <Widget>[
-              // 커스텀 버튼으로 카메라 기능 구현
-              ElevatedButton.icon(
-                icon: Icon(Icons.edit),
-                label: Text('게시글 작성'),
-                onPressed: () {
-                  Navigator.pop(context); // 하단 시트를 닫습니다.
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            NewPostScreen()), // 새로운 화면으로 이동합니다.
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                ),
-              ),
-              SizedBox(height: 10), // 버튼 사이의 간격
-              // 커스텀 버튼으로 갤러리 기능 구현
-              ElevatedButton.icon(
-                icon: Icon(Icons.search),
-                label: Text('게시글 검색'),
-                onPressed: () {
-                  // 갤러리 기능을 여기에 구현하세요.
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildPost(Post post) {
-
     String base64ImageUrl = post.imageUrl;
     if (base64ImageUrl.startsWith('data:image/png;base64,')) {
       base64ImageUrl =
           base64ImageUrl.substring('data:image/png;base64,'.length);
     }
     String base64authorImageUrl =
-        post.authorImageUrl.substring(post.authorImageUrl.indexOf(',') + 1);
+    post.authorImageUrl.substring(post.authorImageUrl.indexOf(',') + 1);
 
     Uint8List imageBytes = base64.decode(base64ImageUrl);
     Uint8List authorImageBytes = base64.decode(base64authorImageUrl);
@@ -226,17 +168,20 @@ class _FeedScreenState extends State<FeedScreen> {
                   title: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                         Text(
-                          post.authorName,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      RankImage.getRankImage(post.rank, width: 40.0, height: 40.0), // 랭크 이미지 추가
+                      Text(
+                        post.authorName,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      RankImage.getRankImage(
+                          post.rank, width: 40.0, height: 40.0), // 랭크 이미지 추가
                     ],
                   ),
                   trailing: post.isCurrentUserPost
                       ? GestureDetector(
                     onTap: () => _showPostOptions(context, post),
-                    child: Image.asset('assets/icons/category_others@2x.png', width: 24, height: 24),
+                    child: Image.asset(
+                        'assets/icons/category_others@2x.png', width: 24,
+                        height: 24),
                   )
                       : null,
                 ),
@@ -266,7 +211,6 @@ class _FeedScreenState extends State<FeedScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Icon(Icons.star, color: Colors.amber, size: 30.0),
-                        SizedBox(width: 5),
                         // 평균 점수 표시
                         Text(
                           '${post.averageScore.toStringAsFixed(1)}',
@@ -293,7 +237,8 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                     IconButton(
                       icon: Icon(
-                        post.collection ? Icons.bookmark : Icons.bookmark_border,
+                        post.collection ? Icons.bookmark : Icons
+                            .bookmark_border,
                         color: Colors.black,
                       ),
                       iconSize: 30.0,
@@ -307,7 +252,8 @@ class _FeedScreenState extends State<FeedScreen> {
                         }
 
                         setState(() {
-                          post.collection = !post.collection; // 버튼이 눌릴 때마다 상태를 전환
+                          post.collection =
+                          !post.collection; // 버튼이 눌릴 때마다 상태를 전환
                         });
                       },
                     ),
@@ -326,37 +272,20 @@ class _FeedScreenState extends State<FeedScreen> {
     List<Post> reversedPosts = posts.reversed.toList();
 
     return Scaffold(
+      backgroundColor: Color(0xFFEDF0F6),
       appBar: AppBar(
-        title: Text(
-            '잠깐 시간 될까',
-            style: GoogleFonts.comfortaa(
-              fontSize: 35,
-              fontWeight: FontWeight.bold,
-              color: Colors.red[300],
-            )
+        title: Text('저장한 게시물'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.yellow[50],
-        centerTitle: true, // Centers the title
-        automaticallyImplyLeading: false, // Removes the back button
       ),
-      backgroundColor: Colors.yellow[50],
       body: CustomScrollView(
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                child: Row(
-                  children: [
-                    Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Text('게시판',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
               ),
             ]),
           ),
@@ -368,17 +297,11 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: Colors.black,
-        onPressed: _showAddMenu,
-      ),
     );
   }
 }
 
-Future<void> deletePost(int postId, BuildContext context) async {
+  Future<void> deletePost(int postId, BuildContext context) async {
 
   try {
     String? accessToken = await storage.read(key: 'accessToken');

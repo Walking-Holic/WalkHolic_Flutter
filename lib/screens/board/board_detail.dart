@@ -9,7 +9,7 @@ import 'package:fresh_store_ui/model/rank_image.dart';
 import 'package:fresh_store_ui/screens/board/new_kakao_map.dart';
 import '../../constants.dart';
 import '../tabbar/tabbar.dart';
-import 'board_screen.dart';
+import 'package:fresh_store_ui/model/post_model.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final Post post;
@@ -351,8 +351,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // AppBar의 배경을 투명하게 설정
-        elevation: 0, // 그림자를 없애기 위해 elevation을 0으로 설정
+        backgroundColor: Colors.yellow[50], // AppBar의 배경을 투명하게 설정
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -364,8 +363,8 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     ));
           },
         ),
-        title: Text(widget.post.title),
       ),
+      backgroundColor: Colors.yellow[50],
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10.0),
@@ -405,7 +404,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   child: Text(
                     widget.post.title,
                     style: TextStyle(
-                      fontSize: 20.0,
+                      fontSize: 25.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -417,7 +416,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     child: Text(
                       postDetail != null ? postDetail!.content : '로딩 중...',
                       style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: 16.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -459,31 +458,48 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         fontSize: 15.0,
                       ),
                     ),
-                    child: Text('경로 확인하기'),
+                    child: Text('작성자의 경로 보러가기'),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Column(
+                  padding: EdgeInsets.all(5.0),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "난이도: ${getKoreanDifficulty(widget.post.difficulty)}",
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
+                          SizedBox(width: 5), // 아이콘과 텍스트 사이 간격
+                          Text(
+                            "난이도: ${getKoreanDifficulty(widget.post.difficulty)}",
+                            style: TextStyle(fontWeight: FontWeight.bold), // 굵은 폰트
+                          ),
+                        ],
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "예상 소요 시간: ${widget.post.estimatedTime} 분",
-                        ),
+                      SizedBox(width: 10),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
+                          SizedBox(width: 5),
+                          Text(
+                            "예상 소요 시간: ${widget.post.estimatedTime} 분",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "경로 길이: ${widget.post.totalDistance} km",
-                        ),
+                      SizedBox(width: 10),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
+                          SizedBox(width: 5),
+                          Text(
+                            "경로 길이: ${widget.post.totalDistance} km",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -496,6 +512,15 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start, // 왼쪽 정렬
                         children: <Widget>[
+                          Icon(Icons.star, color: Colors.amber, size: 30.0),
+                          SizedBox(width: 5),
+                          Text(
+                            postDetail?.averageScore != null ? '별점 ${postDetail!.averageScore.toStringAsFixed(1)}' : '', // 별점 평균 표시 또는 빈칸
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           SizedBox(width: 30.0),
                           IconButton(
                             icon: Icon(Icons.chat),

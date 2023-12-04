@@ -4,6 +4,9 @@ import 'package:fresh_store_ui/theme.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:fresh_store_ui/model/notification_service.dart';
+
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,14 +19,17 @@ const String kakaoMapKey = 'c7f0222c04ff0b7bb1656cf815b683d2';
 void main() async {
   await dotenv.load(fileName: 'assets/env/.env');
   AuthRepository.initialize(appKey: kakaoMapKey);
-
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  final notificationService = NotificationService();
+  WidgetsFlutterBinding.ensureInitialized();
+  await notificationService.init();
+  tz.initializeTimeZones();
 
   //runApp(const FreshBuyerApp());
   runApp(const MyApp());
-
   FlutterNativeSplash.remove();
+
 }
 
 class MyApp extends StatefulWidget {
