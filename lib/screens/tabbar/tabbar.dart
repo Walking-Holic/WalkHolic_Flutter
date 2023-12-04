@@ -4,6 +4,7 @@ import 'package:fresh_store_ui/screens/board/board_screen.dart';
 import 'package:fresh_store_ui/screens/home/home.dart';
 import 'package:fresh_store_ui/screens/profile/profile_screen.dart';
 import 'package:fresh_store_ui/screens/test/test_screen.dart';
+import 'package:fresh_store_ui/screens/weather/weather_screen.dart';
 import 'package:fresh_store_ui/size_config.dart';
 import 'package:weather_icons/weather_icons.dart';
 
@@ -41,7 +42,7 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
       title: '홈',
     ),
     FeedScreen(),
-    TestScreen(),
+    WeatherScreen(),
     const ProfileScreen(),
   ];
 

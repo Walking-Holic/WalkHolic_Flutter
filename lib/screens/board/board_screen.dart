@@ -326,26 +326,13 @@ class _FeedScreenState extends State<FeedScreen> {
     List<Post> reversedPosts = posts.reversed.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            '잠깐 시간 될까',
-            style: GoogleFonts.comfortaa(
-              fontSize: 35,
-              fontWeight: FontWeight.bold,
-              color: Colors.red[300],
-            )
-        ),
-        backgroundColor: Colors.yellow[50],
-        centerTitle: true, // Centers the title
-        automaticallyImplyLeading: false, // Removes the back button
-      ),
-      backgroundColor: Colors.yellow[50],
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 50),
                 child: Row(
                   children: [
                     Image.asset('assets/icons/profile/logo@2x.png', scale: 2),

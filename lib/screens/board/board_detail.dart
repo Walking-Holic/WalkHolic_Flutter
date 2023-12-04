@@ -351,20 +351,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[50], // AppBar의 배경을 투명하게 설정
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => FRTabbarScreen(
-                        initialTabIndex: 1) // FeedScreen이 두 번째 탭일 경우
-                    ));
-          },
-        ),
+        backgroundColor: Colors.white,
+ elevation: 0,
+ // AppBar의 그림자 제거// AppBar의 배경을 투명하게 설정
       ),
-      backgroundColor: Colors.yellow[50],
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10.0),
