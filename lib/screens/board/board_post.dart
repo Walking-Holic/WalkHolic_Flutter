@@ -37,6 +37,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   List<Map<String, dynamic>> coordinates =
       []; // 카카오맵 사용자 경로 설정에서 받아올 경로 정보 들의 배열
   final storage = FlutterSecureStorage();
+  String? _imageUrl; // 네트워크 이미지 URL을 저장하기 위한 변수
 
   @override
   void initState() {
@@ -108,6 +109,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
     // 다른 필드들도 이와 유사하게 설정
     // 이미지 로드 및 다른 필드 설정도 필요에 따라 추가
+    if (post.imageUrl != null && post.imageUrl.isNotEmpty) {
+      _imageUrl = post.imageUrl;
+    }
   }
 
   Future<void> _pickImage() async {
@@ -160,6 +164,19 @@ class _NewPostScreenState extends State<NewPostScreen> {
         return 'LOWER';
       default:
         return 'UNKNOWN'; // 기본값 처리
+    }
+  }
+
+  Widget _buildImageWidget() {
+    if (_image != null) {
+      // 로컬 이미지 파일이 선택된 경우
+      return Image.file(_image!);
+    } else if (_imageUrl != null) {
+      // 네트워크 이미지 URL이 있는 경우
+      return Image.network(_imageUrl!);
+    } else {
+      // 기본 이미지 표시
+      return Container(); // 또는 기본 이미지 표시
     }
   }
 
@@ -274,14 +291,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
     // ...
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('게시글 작성'),
-      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.only(
+            top: 50.0, left: 16.0, right: 16.0, bottom: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -322,6 +338,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     });
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15.0,
+                  ),
+                ),
                 child: Text('내 경로 찍어보기')),
             SizedBox(height: 20),
             TextField(
@@ -365,11 +389,27 @@ class _NewPostScreenState extends State<NewPostScreen> {
             // 선택한 이미지를 보여줌
             ElevatedButton(
               onPressed: _pickImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15.0,
+                ),
+              ),
               child: Text('사진 추가'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitPost,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15.0,
+                ),
+              ),
               child: Text('게시글 올리기'),
             ),
           ],

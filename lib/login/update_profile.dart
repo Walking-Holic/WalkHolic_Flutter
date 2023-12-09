@@ -26,8 +26,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final storage = FlutterSecureStorage();
   Uint8List? profileImage;
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
   TextEditingController nicknameController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   File? _profileImage;
@@ -65,8 +63,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<bool> updateProfile(
-      String email,
-      String password,
       String nickname,
       String name,
       File? profileImage, // 프로필 이미지 파일
@@ -74,8 +70,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ) async {
     var url = Uri.parse("$IP_address/auth/update");
     var dto = jsonEncode({
-      "email": email,
-      "password": password,
       "nickname": nickname,
       "name": name
     });
@@ -184,7 +178,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (image == null) return;
 
       final imageTemporary = File(image.path);
-      setState(() => _profileImage = imageTemporary);
+      setState(() {
+        _profileImage = imageTemporary;
+        // 선택한 이미지를 profileImage 상태 변수에도 반영합니다.
+        profileImage = File(image.path).readAsBytesSync();
+      });
     } on PlatformException catch (e) {
       debugPrint('Failed to pick image error: $e');
     }
@@ -200,18 +198,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('프로필 수정'), // AppBar의 타이틀 설정
-          backgroundColor: Colors.white, // AppBar의 배경색 설정
-          elevation: 0, // AppBar의 그림자 제거
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back), // 뒤로 가기 아이콘 설정
-            onPressed: () {
-              Navigator.of(context).pop(); // 현재 화면을 스택에서 제거하여 이전 화면으로 돌아감
-            },
-          ),
-        ),
-        backgroundColor: const Color(0xffEEF1F3),
+        backgroundColor: Color(0xFFF4EDDB),
         body: SingleChildScrollView(
           child: Form(
             key: _editProfileFormKey,
@@ -226,14 +213,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                   child: Column(
                     children: [
-                      const PageHeading(title: '프로필 수정',),
+                      const PageHeading(title: '프로필 수정'),
                       SizedBox(
-                        width: 130,
-                        height: 130,
+                        width: 150,
+                        height: 150,
                         child: CircleAvatar(
                           backgroundColor: Colors.grey.shade200,
-                          backgroundImage: _profileImage != null ? FileImage(
-                              _profileImage!) : null,
+                          backgroundImage: profileImage != null ? MemoryImage(profileImage!) : null,
                           child: Stack(
                             children: [
                               Positioned(
@@ -262,35 +248,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16,),
-                      CustomInputField(
-                          controller: emailController,
-                          labelText: 'Email',
-                          hintText: '새로운 Email을 작성해주세요',
-                          isDense: true,
-                          validator: (textValue) {
-                            if (textValue == null || textValue.isEmpty) {
-                              return '작성해주세요!!';
-                            }
-                            return null;
-                          }
-                      ),
-                      const SizedBox(height: 16,),
-                      CustomInputField(
-                          controller: passwordController,
-                          labelText: '비밀번호',
-                          hintText: '새로운 비밀번호를 작성해주세요',
-                          isDense: true,
-                          obscureText: true,
-                          suffixIcon: true,
-                          validator: (textValue) {
-                            if (textValue == null || textValue.isEmpty) {
-                              return '작성해주세요!!';
-                            }
-                            return null;
-                          }
-                      ),
-                      const SizedBox(height: 16,),
+                      const SizedBox(height: 20),
                       CustomInputField(
                           controller: nicknameController,
                           labelText: '별명',
@@ -303,7 +261,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             return null;
                           }
                       ),
-                      const SizedBox(height: 16,),
+                      const SizedBox(height: 20),
                       CustomInputField(
                         controller: nameController,
                         labelText: '이름',
@@ -316,15 +274,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 22,),
+                      const SizedBox(height: 30),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8, // 화면 너비의 80%
                         child: ElevatedButton(
                           onPressed: () {
                             if (_editProfileFormKey.currentState!.validate()) {
                               updateProfile(
-                                  emailController.text,
-                                  passwordController.text,
                                   nicknameController.text,
                                   nameController.text,
                                   _profileImage,
@@ -343,7 +299,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           child: Text('프로필 수정'),
                         ),
                       ),
-                      const SizedBox(height: 30,),
+                      const SizedBox(height: 39),
                     ],
                   ),
                 ),

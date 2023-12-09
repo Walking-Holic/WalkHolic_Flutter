@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fresh_store_ui/constants.dart';
 
+
 class KakaoLoginScreen extends StatefulWidget {
   @override
   _KakaoLoginScreenState createState() => _KakaoLoginScreenState();
@@ -211,9 +212,6 @@ class _KakaoLoginScreenState extends State<KakaoLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("카카오 로그인"),
-      ),
       body: Builder(
         builder: (BuildContext context) {
           // Builder 내에서 WebViewController를 생성하고 사용

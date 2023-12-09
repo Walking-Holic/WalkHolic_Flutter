@@ -18,7 +18,7 @@ class NotificationService {
   Future<void> init() async {
     // 알림을 표시할 때 사용할 로고를 지정
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    AndroidInitializationSettings('drawable/splash');
     // 안드로이드 플랫폼에서 사용할 초기화 설정
     const InitializationSettings initializationSettings =
     InitializationSettings(android: initializationSettingsAndroid);
@@ -98,8 +98,8 @@ class NotificationService {
     // 여기서 푸시될 정보를 표시
     await flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
-      '산책할 시간~',
-      '정해진 산책할 시간이 되었습니다!',
+      '잠깐 시간 될까',
+      '알람 설정한 산책 시간 입니다',
       scheduledTimeZone,
       notificationDetails,
       androidAllowWhileIdle: true,

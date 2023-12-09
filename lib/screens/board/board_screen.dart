@@ -11,8 +11,6 @@ import '../../constants.dart';
 import '../../model/rank_image.dart';
 import 'board_detail.dart';
 import 'package:fresh_store_ui/model/post_model.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -26,6 +24,7 @@ class _FeedScreenState extends State<FeedScreen> {
   String currentUserEmail = '';
   String? email;
   String? rank;
+  bool isLoading = true; // 데이터 로딩 상태 표시
 
   Future<void> _loadUserProfile() async {
     final storage = FlutterSecureStorage();
@@ -58,7 +57,7 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
-  void _fetchPosts() async {
+  Future<void> _fetchPosts() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
@@ -114,67 +113,12 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchPosts().then((_) {
+      setState(() {
+        isLoading = false; // 데이터 로딩 완료
+      });
+    });
     _loadUserProfile();
-    _fetchPosts();
-  }
-
-
-  void _showAddMenu() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // 실제 내용의 크기만큼만 차지하도록 설정
-            children: <Widget>[
-              // 커스텀 버튼으로 카메라 기능 구현
-              ElevatedButton.icon(
-                icon: Icon(Icons.edit),
-                label: Text('게시글 작성'),
-                onPressed: () {
-                  Navigator.pop(context); // 하단 시트를 닫습니다.
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            NewPostScreen()), // 새로운 화면으로 이동합니다.
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                ),
-              ),
-              SizedBox(height: 10), // 버튼 사이의 간격
-              // 커스텀 버튼으로 갤러리 기능 구현
-              ElevatedButton.icon(
-                icon: Icon(Icons.search),
-                label: Text('게시글 검색'),
-                onPressed: () {
-                  // 갤러리 기능을 여기에 구현하세요.
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Widget _buildPost(Post post) {
@@ -332,7 +276,7 @@ class _FeedScreenState extends State<FeedScreen> {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 50),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
                 child: Row(
                   children: [
                     Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
@@ -347,7 +291,11 @@ class _FeedScreenState extends State<FeedScreen> {
               ),
             ]),
           ),
-          SliverList(
+          isLoading
+              ? SliverFillRemaining(
+            child: Center(child: CircularProgressIndicator(color: Colors.black)),
+          ) // 로딩 인디케이터 표시
+              : SliverList(
             delegate: SliverChildBuilderDelegate(
                   (context, index) => _buildPost(reversedPosts[index]),
               childCount: reversedPosts.length,
@@ -359,11 +307,99 @@ class _FeedScreenState extends State<FeedScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Colors.black,
-        onPressed: _showAddMenu,
+        elevation: 5.0, // 그림자 깊이
+        onPressed: () async {
+          // '게시물 작성' 확인 대화상자를 표시
+          final bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('게시물 작성', style:
+                  TextStyle(
+                      fontWeight: FontWeight.w900)),
+                content: Text('새 게시물을 작성하시겠습니까?', style:
+                TextStyle(
+                    fontWeight: FontWeight.w900)),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('예',style:
+                  TextStyle(
+                  fontWeight: FontWeight.w900)),
+                    onPressed: () {
+                      Navigator.of(context).pop(true); // '예'를 선택하면 true 반환
+                    },
+                  ),
+                  TextButton(
+                    child: Text('아니요', style:
+                    TextStyle(
+                        fontWeight: FontWeight.w900)),
+                    onPressed: () {
+                      Navigator.of(context).pop(false); // '아니요'를 선택하면 false 반환
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          // '예'를 선택했을 경우 NewPostScreen으로 이동
+          if (confirm ?? false) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NewPostScreen()),
+            );
+          }
+        },
       ),
     );
   }
 }
+
+/*floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        backgroundColor: Colors.black,
+        onPressed: () async {
+          if (rank == 'GOLD' || rank == 'PLATINUM' || rank == 'DIAMOND') {
+            // GOLD 이상 사용자에게만 게시물 작성을 허용
+            final bool? confirm = await _showCreatePostDialog();
+            if (confirm ?? false) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NewPostScreen()),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('GOLD 이상 사용자만 게시물을 작성할 수 있습니다.'))
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Future<bool?> _showCreatePostDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('게시물 작성'),
+          content: Text('새 게시물을 작성하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('예'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+            TextButton(
+              child: Text('아니오'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}*/
+
 
 Future<void> deletePost(int postId, BuildContext context) async {
 
@@ -409,7 +445,9 @@ void _showPostOptions(BuildContext context, Post post) {
           children: <Widget>[
             ListTile(
               leading: Icon(Icons.edit),
-              title: Text('게시물 수정'),
+              title: Text('게시물 수정', style:
+              TextStyle(
+                  fontWeight: FontWeight.w900)),
               onTap: () async {
                 Navigator.pop(context); // 하단 시트 닫기
 
@@ -424,7 +462,9 @@ void _showPostOptions(BuildContext context, Post post) {
             ),
             ListTile(
               leading: Icon(Icons.delete),
-              title: Text('게시물 삭제'),
+              title: Text('게시물 삭제', style:
+              TextStyle(
+                  fontWeight: FontWeight.w900)),
               onTap: () async {
                 Navigator.pop(context); // 하단 시트 닫기
                 // 삭제 확인 대화상자 표시

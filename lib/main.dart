@@ -75,7 +75,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
+      theme: firstRun ? ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE7626C),
         textTheme: const TextTheme(
           displayLarge: TextStyle(
@@ -83,6 +83,10 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         cardColor: const Color(0xFFF4EDDB),
+      ): ThemeData(
+        // 그 외 경우 사용할 테마
+        scaffoldBackgroundColor: Colors.white,
+        // ...
       ),
       home: firstRun ? const GuideMainScreen() : const GuideMainScreen(), // added
     );

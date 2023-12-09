@@ -25,6 +25,7 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
   String? email;
   String? rank;
   final storage = FlutterSecureStorage();
+  bool isLoading = true; // 데이터 로딩 상태 관리 변수
 
   Future<void> _loadUserProfile() async {
     try {
@@ -81,6 +82,7 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
 
         setState(() {
           posts = fetchedPosts;
+          isLoading = false; // 데이터 로딩 완료
         });
       } else {
         print('잘못된 Url 경로');
@@ -131,7 +133,6 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
 
     Uint8List imageBytes = base64.decode(base64ImageUrl);
     Uint8List authorImageBytes = base64.decode(base64authorImageUrl);
-
 
     return InkWell(
       onTap: () async {
@@ -273,26 +274,25 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
 
     return Scaffold(
       backgroundColor: Color(0xFFEDF0F6),
-      appBar: AppBar(
-        title: Text('저장한 게시물'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
       body: CustomScrollView(
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 50),
               ),
             ]),
           ),
-          SliverList(
+          isLoading
+              ? SliverFillRemaining(
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.black),
+            ),
+          )
+              : SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPost(reversedPosts[index]),
-              childCount: reversedPosts.length,
+                  (context, index) => _buildPost(posts[index]),
+              childCount: posts.length,
             ),
           ),
         ],
@@ -302,7 +302,6 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
 }
 
   Future<void> deletePost(int postId, BuildContext context) async {
-
   try {
     String? accessToken = await storage.read(key: 'accessToken');
 

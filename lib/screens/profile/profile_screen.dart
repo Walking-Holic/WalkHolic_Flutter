@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fresh_store_ui/model/rank_image.dart';
 import 'package:fresh_store_ui/screens/board/board_marked.dart';
 import 'package:fresh_store_ui/screens/profile/header.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
@@ -19,6 +20,7 @@ class ProfileOption {
   Color? titleColor;
   ProfileOptionTap? onClick;
   Widget? trailing;
+
 
   ProfileOption({
     required this.title,
@@ -51,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final storage = FlutterSecureStorage();
   final now = DateTime.now().add(Duration(hours: 9));
   late TimeOfDay _newTime = TimeOfDay(hour: now.hour, minute: now.minute);
-
+  double point = 0.0;
   @override
   void initState() {
     super.initState();
@@ -247,53 +249,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   get datas => profileData != null ? <ProfileOption>[
-        ProfileOption(title: Text('내 정보 확인'),
-            icon: Icon(Icons.account_circle, color: Colors.black87),
-            onClick: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => getUserInfo()),
+    ProfileOption(title: Text('내 정보 확인'),
+      icon: Icon(Icons.account_circle, color: Colors.black87),
+      onClick: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => getUserInfo()),
         );},
-        ),
-        ProfileOption(title: Text('프로필 수정'),
-          icon: Icon(Icons.edit, color: Colors.black87),
-          onClick: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfileEditScreen()),
-            );
+    ),
+    ProfileOption(title: Text('프로필 수정'),
+        icon: Icon(Icons.edit, color: Colors.black87),
+        onClick: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+          );
         }),
-        ProfileOption(title: Text('알람 설정'),
-            icon: Icon(Icons.alarm, color: Colors.black87),
-          onClick: () {
-            _requestNotificationPermissions();
-            _selectTime(context);
-            },
-        ),
-        ProfileOption(title: Text('북마크 한 글보기'),
-            icon: Icon(Icons.bookmark, color: Colors.black87),
-          onClick: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MarkFeedScreen()),
-            );},
-        ),
-        ProfileOption(
-          title: Text('로그아웃'),
-          icon: Icon(Icons.logout, color: Colors.red),
-          titleColor: const Color(0xFFF75555),
-          onClick:() {
-            Navigator.push(
-              context as BuildContext,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            );
-          }
-        ),
+    ProfileOption(title: Text('알람 설정'),
+      icon: Icon(Icons.alarm, color: Colors.black87),
+      onClick: () {
+        _requestNotificationPermissions();
+        _selectTime(context);
+      },
+    ),
+    ProfileOption(title: Text('북마크 한 글보기'),
+      icon: Icon(Icons.bookmark, color: Colors.black87),
+      onClick: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MarkFeedScreen()),
+        );},
+    ),
+    ProfileOption(
+        title: Text('로그아웃'),
+        icon: Icon(Icons.logout, color: Colors.red),
+        titleColor: const Color(0xFFF75555),
+        onClick:() {
+          Navigator.push(
+            context as BuildContext,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        }
+    ),
     ProfileOption(
       title: Text(
-          '회원 탈퇴',
-          style: TextStyle(color: Colors.black87.withOpacity(0.3)),
-        ),
+        '회원 탈퇴',
+        style: TextStyle(color: Colors.black87.withOpacity(0.3)),
+      ),
       icon: Icon(Icons.delete_forever, color: Colors.black87.withOpacity(0.3)), // 회원 탈퇴에 알맞은 아이콘
       onClick: () async {
         final bool? confirmed = await showDialog<bool>(
@@ -331,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-           SliverList(
+          SliverList(
             delegate: SliverChildListDelegate([
               ProfileHeader(),
             ]),
@@ -343,19 +345,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildBody() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 1),
-      sliver: profileData != null ? SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final data = datas[index];
-            return _buildOption(context, index, data);
-          },
-          childCount: datas.length,
+    // 프로필 데이터 로딩 중인 경우
+    if (profileData == null) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                strokeWidth: 5.0,
+              ),
+              SizedBox(height: 20),
+              Text(
+                "프로필 정보를 불러오는 중...",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
-      ): const SliverToBoxAdapter(child: CircularProgressIndicator()),
+      );
+    }
+
+    // 프로필 데이터 로딩 완료 시
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+            (context, index) {
+          final data = datas[index];
+          return _buildOption(context, index, data);
+        },
+        childCount: datas.length,
+      ),
     );
   }
+
 
   Widget _buildOption(BuildContext context, int index, ProfileOption data) {
     return ListTile(
@@ -376,6 +399,7 @@ class getUserInfo extends StatefulWidget {
 
 class _getUserInfoState extends State<getUserInfo> {
   final storage = FlutterSecureStorage();
+  double point = 0.0;
 
   Future<Map<String, dynamic>?> fetchProfile() async {
     try {
@@ -406,9 +430,6 @@ class _getUserInfoState extends State<getUserInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('프로필 정보'),
-      ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: fetchProfile(),
         builder: (context, snapshot) {
@@ -417,7 +438,7 @@ class _getUserInfoState extends State<getUserInfo> {
               child: SizedBox(
                 width: 50.0,  // 원하는 너비 설정
                 height: 50.0, // 원하는 높이 설정
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.black),
               ),
             );
           }
@@ -431,16 +452,108 @@ class _getUserInfoState extends State<getUserInfo> {
           }
 
           final profileData = snapshot.data!;
-
+          point = profileData['time'].toDouble() * 0.01 + profileData['walk'].toDouble() * 0.1;
           return Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0, bottom: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('이메일: ${profileData['email']}', style: TextStyle(fontSize: 20)),
-                Text('닉네임: ${profileData['nickname']}', style: TextStyle(fontSize: 20)),
-                Text('랭크: ${profileData['rank']}', style: TextStyle(fontSize: 20)),
-                Text('걸음 수: ${profileData['walk']}', style: TextStyle(fontSize: 20)),
+                Card(
+                  elevation: 4.0,
+                  child: ListTile(
+                    leading: Icon(Icons.email),
+                    title: Text('이메일: ${profileData['email']}'),
+                  ),
+                ),
+                Card(
+                  elevation: 4.0,
+                  child: ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('닉네임: ${profileData['nickname']}'),
+                  ),
+                ),
+                Card(
+                  elevation: 4.0,
+                  child: ListTile(
+                    leading: Icon(Icons.directions_walk),
+                    title: Text('걸음 수: ${profileData['walk']}'),
+                  ),
+                ),
+                Card(
+                  elevation: 4.0,
+                  child: ListTile(
+                    leading: Icon(Icons.timer),
+                    title: Text('산책 시간: ${profileData['time']}'),
+                  ),
+                ),
+                Card(
+                  elevation: 4.0,
+                  child: ListTile(
+                    leading: Icon(Icons.star_border_outlined),
+                    title: Text('랭크: ${profileData['rank']}  /  내 포인트: ${point.toStringAsFixed(1)}'),
+                    trailing: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('랭크 정보'),
+                                  SizedBox(height: 8), // 제목과 부제목 사이의 간격
+                                  Text('포인트 = 걸음 수 x 0.1 + 산책 시간(초) x 0.01', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.grey)),
+                                ],
+                              ),
+                              content: SingleChildScrollView(
+                                child: ListBody(
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        RankImage.getRankImage('bronze', width: 38, height: 38),
+                                        SizedBox(width: 5), // 이미지와 텍스트 사이 간격
+                                        Text('BRONZE 0 ~ 5000 포인트')
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        RankImage.getRankImage('silver', width: 38, height: 38),
+                                        SizedBox(width: 5), // 간격
+                                        Text('SILVER 5000 ~ 10000 포인트')
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        RankImage.getRankImage('gold', width: 38, height: 38),
+                                        SizedBox(width: 5), // 간격
+                                        Text('GOLD 10000 ~ 30000 포인트')
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        RankImage.getRankImage('platinum', width: 38, height: 38),
+                                        SizedBox(width: 5), // 간격
+                                        Text('PLATINUM 30000 ~ 70000 포인트')
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        RankImage.getRankImage('diamond', width: 38, height: 38),
+                                        SizedBox(width: 5), // 간격
+                                        Text('DIAMOND 70000이상 포인트')
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Icon(Icons.info_outline),
+                    ),
+                  ),
+                ),
               ],
             ),
           );

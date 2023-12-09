@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fresh_store_ui/model/rank_image.dart';
 import '../../constants.dart';
 import 'dart:core';
 
@@ -14,9 +15,10 @@ class ProfileHeader extends StatefulWidget {
   State<StatefulWidget> createState() => _ProfileHeaderState();
 }
 
-class _ProfileHeaderState extends State<ProfileHeader>{
+class _ProfileHeaderState extends State<ProfileHeader> {
   Uint8List? profileImage;
   String? nickname;
+  String? rank;
 
   @override
   void initState() {
@@ -27,7 +29,7 @@ class _ProfileHeaderState extends State<ProfileHeader>{
   Future<void> _loadUserProfile() async {
     final storage = FlutterSecureStorage();
 
-    try {
+    try {// 로딩 시작
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
       Response response = await dio.get(
@@ -46,6 +48,7 @@ class _ProfileHeaderState extends State<ProfileHeader>{
         setState(() {
           profileImage = imageBytes;
           nickname = responseData['nickname'];
+          rank = responseData['rank'];
         });
       } else {
         // 에러 처리
@@ -57,18 +60,20 @@ class _ProfileHeaderState extends State<ProfileHeader>{
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+    @override
+    Widget build(BuildContext context) {
+
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 24, right: 24, top: 50),
+          padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
           child: Row(
             children: [
               Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
               const SizedBox(width: 16),
               const Expanded(
-                child: Text('프로필', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                child: Text('프로필', style: TextStyle(
+                    fontSize: 24, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -92,10 +97,23 @@ class _ProfileHeaderState extends State<ProfileHeader>{
           ],
         ),
         const SizedBox(height: 12),
-        Text(
-          nickname ?? 'WalkHolic',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                nickname ?? '',
+                style: TextStyle(
+                  color: Color(0xFF212121),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                ),
+              ),
+              SizedBox(width: 8),
+              rank != null // rank 값이 있는 경우에만 RankImage를 보여줌
+                  ? RankImage.getRankImage(rank!, width: 50.0, height: 50.0)
+                  : SizedBox(),
+            ],
+          ),
         const SizedBox(height: 8),
         Container(
           color: const Color(0xFFEEEEEE),

@@ -3,6 +3,7 @@ import 'package:fresh_store_ui/image_loader.dart';
 import 'package:fresh_store_ui/screens/board/board_screen.dart';
 import 'package:fresh_store_ui/screens/home/home.dart';
 import 'package:fresh_store_ui/screens/profile/profile_screen.dart';
+import 'package:fresh_store_ui/screens/run/run_chart.dart';
 import 'package:fresh_store_ui/screens/test/test_screen.dart';
 import 'package:fresh_store_ui/screens/weather/weather_screen.dart';
 import 'package:fresh_store_ui/size_config.dart';
@@ -43,6 +44,7 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
     ),
     FeedScreen(),
     WeatherScreen(),
+    BarChartSample(),
     const ProfileScreen(),
   ];
 
@@ -81,6 +83,17 @@ class _FRTabbarScreenState extends State<FRTabbarScreen> {
         child: Icon(WeatherIcons.day_sunny_overcast),
       ),
       label: '날씨',
+    ),
+    BottomNavigationBarItem(
+      icon: Padding(
+        padding: EdgeInsets.only(bottom: 5), // 아래쪽 패딩으로 간격 조절
+        child: Icon(Icons.directions_walk),
+      ),
+      activeIcon: Padding(
+        padding: EdgeInsets.only(bottom: 5), // 아래쪽 패딩으로 간격 조절
+        child: Icon(Icons.directions_run),
+      ),
+      label: '기록',
     ),
     BottomNavigationBarItem(
       icon: generateIcon('light/Profile@2x.png'),
