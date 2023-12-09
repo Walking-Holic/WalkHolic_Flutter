@@ -53,8 +53,9 @@ dependencies:
   shared_preferences: ^2.2.2
   flutter_rating_bar: ^4.0.1
   font_awesome_flutter: ^10.6.0
-
-
+  csv: ^5.1.1
+  excel: ^4.0.0
+  file_picker: ^6.1.1
   flutter_native_splash: ^2.3.6
   smooth_page_indicator: ^1.1.0
 
@@ -97,6 +98,7 @@ flutter:
     - assets/ranks/gold.png
     - assets/ranks/platinum.png
     - assets/ranks/diamond.png
+    - assets/KC_CFR_WLK_STRET_INFO_2021.xlsx
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

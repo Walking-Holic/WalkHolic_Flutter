@@ -36,70 +36,73 @@ class GuideScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF4EDDB),
       appBar: const AppbarSkip(),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 570,
-            child: PageView(
-              controller: _controller,
-              children: const [
-                GuideHowScreen(),
-                GuideFocusScreen(),
-                GuideBreakScreen(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 570,
+              child: PageView(
+                controller: _controller,
+                children: const [
+                  GuideHowScreen(),
+                  GuideFocusScreen(),
+                  GuideBreakScreen(),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const Padding(padding: EdgeInsets.only(left: 40)),
+                SmoothPageIndicator(
+                  controller: _controller,
+                  count: 3,
+                  effect: const ExpandingDotsEffect(
+                    activeDotColor: Color(0xFFE7626C),
+                    dotColor: Color(
+                      0xFF232B55,
+                    ),
+                  ),
+                ),
+                const SizedBox()
               ],
             ),
-          ),
-          Row(
-            children: [
-              const Padding(padding: EdgeInsets.only(left: 40)),
-              SmoothPageIndicator(
-                controller: _controller,
-                count: 3,
-                effect: const ExpandingDotsEffect(
-                  activeDotColor: Color(0xFFE7626C),
-                  dotColor: Color(
+            const Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 45,
+              ),
+            ),
+            SizedBox(
+              width: 181,
+              height: 49,
+              child: ElevatedButton(
+                onPressed: () {
+                  skipTutorial();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(
                     0xFF232B55,
                   ),
-                ),
-              ),
-              const SizedBox()
-            ],
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 45,
-            ),
-          ),
-          SizedBox(
-            width: 181,
-            height: 49,
-            child: ElevatedButton(
-              onPressed: () {
-                skipTutorial();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(
-                  0xFF232B55,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                child: const Text(
+                  '시작하기',
+                  style: TextStyle(color: Colors.white, fontSize: 20,
+                    fontWeight: FontWeight.w900,),
                 ),
-              ),
-              child: const Text(
-                '시작하기',
-                style: TextStyle(color: Colors.white, fontSize: 20,
-                  fontWeight: FontWeight.w900,),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      )
+
     );
   }
 }
