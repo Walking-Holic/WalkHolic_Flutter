@@ -19,9 +19,19 @@ class NotificationService {
     // 알림을 표시할 때 사용할 로고를 지정
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('drawable/splash');
+
+
+    const DarwinInitializationSettings initializationSettingsDarwin =
+    DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
+
     // 안드로이드 플랫폼에서 사용할 초기화 설정
     const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
+    InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsDarwin);
+
 
     // 채널 생성 추가
     const AndroidNotificationChannel androidChannel = AndroidNotificationChannel(
@@ -30,6 +40,16 @@ class NotificationService {
       description: 'This channel is used for counter-related notifications',
       importance: Importance.high,
       playSound: true,
+    );
+
+    // iOS에서 채널을 등록합니다.
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>()!
+        .requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
     );
 
     // 로컬 푸시 알림을 초기화
