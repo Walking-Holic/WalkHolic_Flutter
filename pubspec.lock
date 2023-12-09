@@ -85,10 +85,10 @@ packages:
     dependency: transitive
     description:
       name: cross_file
-      sha256: "445db18de832dba8d851e287aff8ccf169bed30d2e94243cb54c7d2f1ed2142c"
+      sha256: "2f9d2cbccb76127ba28528cb3ae2c2326a122446a83de5a056aaa3880d3882c5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.3+6"
+    version: "0.3.3+7"
   crypto:
     dependency: transitive
     description:
@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  csv:
+    dependency: "direct main"
+    description:
+      name: csv
+      sha256: "63ed2871dd6471193dffc52c0e6c76fb86269c00244d244297abbb355c84a86e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -125,10 +133,10 @@ packages:
     dependency: transitive
     description:
       name: dio
-      sha256: "417e2a6f9d83ab396ec38ff4ea5da6c254da71e4db765ad737a42af6930140b7"
+      sha256: "797e1e341c3dd2f69f2dad42564a6feff3bfb87187d05abb93b9609e6f1645c3"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.3"
+    version: "5.4.0"
   encrypt:
     dependency: transitive
     description:
@@ -137,6 +145,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.3"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.5"
+  excel:
+    dependency: "direct main"
+    description:
+      name: excel
+      sha256: afa039babd69dd86f203c60fa1260df8c786f1e7e3666693e9cd12bddfcc974f
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   expandable_text:
     dependency: "direct main"
     description:
@@ -169,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: "4e42aacde3b993c5947467ab640882c56947d9d27342a5b6f2895b23956954a6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
   file_selector_linux:
     dependency: transitive
     description:
@@ -258,10 +290,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_native_splash
-      sha256: c4d899312b36e7454bedfd0a4740275837b99e532d81c8477579d8183db1de6c
+      sha256: "17d9671396fb8ec45ad10f4a975eb8a0f70bedf0fdaf0720b31ea9de6da8c4da"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.6"
+    version: "2.3.7"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -764,10 +796,10 @@ packages:
     dependency: transitive
     description:
       name: plugin_platform_interface
-      sha256: da3fdfeccc4d4ff2da8f8c556704c08f912542c5fb3cf2233ed75372384a034d
+      sha256: f4f88d4a900933e7267e2b353594774fc0d07fb072b47eedcd5b54e1ea3269f8
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.6"
+    version: "2.1.7"
   pointycastle:
     dependency: transitive
     description:
@@ -977,10 +1009,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: "4ac97281cf60e2e8c5cc703b2b28528f9b50c8f7cebc71df6bdf0845f647268a"
+      sha256: bba3373219b7abb6b5e0d071b0fe66dfbe005d07517a68e38d4fc3638f35c6d3
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.0"
+    version: "6.2.1"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -1065,10 +1097,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_platform_interface
-      sha256: "6d9213c65f1060116757a7c473247c60f3f7f332cac33dc417c9e362a9a13e4f"
+      sha256: "68e86162aa8fc646ae859e1585995c096c95fc2476881fa0c4a8d10f56013a5a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.8.0"
   webview_flutter_wkwebview:
     dependency: transitive
     description:
@@ -1081,10 +1113,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "350a11abd2d1d97e0cc7a28a81b781c08002aa2864d9e3f192ca0ffa18b06ed3"
+      sha256: b0f37db61ba2f2e9b7a78a1caece0052564d1bc70668156cf3a29d676fe4e574
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.9"
+    version: "5.1.1"
   wkt_parser:
     dependency: transitive
     description:

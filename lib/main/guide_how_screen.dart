@@ -9,7 +9,8 @@ class GuideHowScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF4EDDB),
       body: SizedBox(
         height: 570,
-        child: Column(
+        child: SingleChildScrollView(
+          child:Column(
           children: <Widget>[
             const Padding(
               padding: EdgeInsets.only(
@@ -54,6 +55,7 @@ class GuideHowScreen extends StatelessWidget {
               'assets/icons/main1.png',
             ),
           ],
+        ),
         ),
       ),
     );
