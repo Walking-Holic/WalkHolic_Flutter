@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -61,15 +60,7 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        if (responseData == null || responseData.isEmpty) {
-        print("hi");
-          return {
-            'data': {0: 1.0},
-            'walk': 1,
-            'time': 1,
-            'kcal': 1
-          };
-        }
+
 
         Map<int, double> weeklySteps = {};
         int totalWalk = 0;
@@ -130,15 +121,7 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        if (responseData == null || responseData.isEmpty) {
-          print("hi");
-          return {
-            'data': {0: 1.0},
-            'walk': 1,
-            'time': 1,
-            'kcal': 1
-          };
-        }
+
         Map<int, double> monthlySteps = {};
         int totalWalk = 0;
         int totalTime = 0;
@@ -195,15 +178,7 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        if (responseData == null || responseData.isEmpty) {
-          print("hi");
-          return {
-            'data': {0: 1.0},
-            'walk': 1,
-            'time': 1,
-            'kcal': 1
-          };
-        }
+
 
         Map<int, double> yearlySteps = {};
         int totalWalk = 0;
@@ -259,15 +234,7 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        if (responseData['steps'] == 0 && responseData['durationMinutes'] == 0 && responseData['caloriesBurned'] == 0) {
-          print("hi");
-          return {
-            'data': {0: 1.0},
-            'walk': 1,
-            'time': 1,
-            'kcal': 1
-          };
-        }
+
 
         int totalWalk = 0;
         int totalTime = 0;
@@ -319,7 +286,7 @@ class _BarChartSampleState extends State<BarChartSample> {
                   SizedBox(height: 10),
                   Container(
                     height: 200,
-                    width: 400,
+                    width: double.infinity,
                     child: _buildChart(_selectedChart),
                   ),
                 ],
@@ -716,20 +683,20 @@ class _BarChartSampleState extends State<BarChartSample> {
 
 
   Widget _buildWeeklyChart(Map<int, double> data) {
-    // 각 요일별 데이터 값
+    // 요일 레이블
     final Map<int, double> weeklyData = data;
 
-    // 요일 레이블
     final Map<int, String> dayLabels = {
       0: '월', 1: '화', 2: '수', 3: '목', 4: '금', 5: '토', 6: '일'
     };
+
     // 최대값을 계산합니다.
     final double maxValue = weeklyData.values.fold(0.0, (max, v) => v > max ? v : max);
-    final double maxY = maxValue * 1.1;
+    final double maxY = maxValue > 0.0 ? maxValue * 1.5 : 1.0;  // 최대값이 0인 경우 maxY를 1로 설정
 
     // 각 막대의 데이터를 생성합니다.
-    final List<BarChartGroupData> barGroups = List.generate(7, (index) {
-      final dataValue = weeklyData[index] ?? 0.0; // 요일별 데이터 값 또는 기본값
+    List<BarChartGroupData> barGroups = List.generate(7, (index) {
+      final dataValue = weeklyData[index] ?? 0.01;  // 데이터가 0이거나 null이면 0.1로 설정
 
       return BarChartGroupData(
         x: index,
@@ -737,10 +704,10 @@ class _BarChartSampleState extends State<BarChartSample> {
           BarChartRodData(
             y: dataValue,
             colors: [Color(0xFFFDD835)],
-            width: 16, // 막대의 두께
-            borderRadius: BorderRadius.circular(4), // 둥근 모서리
-          )
-        ], // 첫 번째 막대에 대한 툴팁 인덱스
+            width: 16,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
       );
     });
 
@@ -750,9 +717,9 @@ class _BarChartSampleState extends State<BarChartSample> {
         maxY: maxY,
         minY: 0,
         gridData: FlGridData(
-            show: true, // y축 그리드 라인을 표시합니다.
+            show: true,
             checkToShowHorizontalLine: (value) =>
-            value % 10000 == 0 // y축 그리드 라인이 각 5000 단위마다 표시되도록 합니다.
+            value % 10000 == 0
         ),
         barTouchData: BarTouchData(enabled: false),
         titlesData: FlTitlesData(
@@ -769,7 +736,8 @@ class _BarChartSampleState extends State<BarChartSample> {
           topTitles: SideTitles(showTitles: false),
           bottomTitles: SideTitles(
             showTitles: true,
-            getTitles: (double value) => dayLabels[value.toInt()] ?? '',
+            getTitles: (double value) =>
+            dayLabels[value.toInt()] ?? '',
           ),
         ),
         borderData: FlBorderData(show: false),
@@ -782,7 +750,7 @@ class _BarChartSampleState extends State<BarChartSample> {
   Widget _buildMonthlyChart(Map<int, double> data, int year, int month, int daysInMonth) {
     // 일별 데이터로 막대 차트 그룹 생성
     List<BarChartGroupData> barGroups = List.generate(daysInMonth, (index) {
-      final dataValue = data[index] ?? 0.0; // 일별 데이터 값 또는 기본값
+      final dataValue = data[index] ?? 0.01; // 일별 데이터 값 또는 기본값
       return BarChartGroupData(
         x: index,
         barRods: [
@@ -797,7 +765,7 @@ class _BarChartSampleState extends State<BarChartSample> {
     });
 
     final double maxValue = data.values.fold(0.0, (max, v) => v > max ? v : max);
-    final double maxY = maxValue * 1.1;
+    final double maxY = maxValue > 0.0 ? maxValue * 1.5 : 1.0;
 
     return BarChart(
       BarChartData(
@@ -847,13 +815,13 @@ class _BarChartSampleState extends State<BarChartSample> {
     // 각 월별 데이터 값
     final Map<int, double> monthlyData = data;
     final double maxValue = monthlyData.values.fold(0.0, (max, v) => v > max ? v : max);
-    final double maxY = maxValue * 1.1;
+    final double maxY = maxValue > 0.0 ? maxValue * 1.5 : 1.0;
 
     double newtotalSum = calculateSum(monthlyData);
 
     // 각 막대의 데이터를 생성합니다.
     final List<BarChartGroupData> barGroups = List.generate(12, (index) {
-      final dataValue = monthlyData[index] ?? 0.0; // 월별 데이터 값 또는 기본값
+      final dataValue = monthlyData[index] ?? 0.01; // 월별 데이터 값 또는 기본값
       return BarChartGroupData(
           x: index,
           barRods: [BarChartRodData(y: dataValue, colors: [Color(0xFFFDD835)], width: 20, // 막대의 두께
@@ -912,15 +880,18 @@ class _BarChartSampleState extends State<BarChartSample> {
     double newtotalSum = calculateSum(yearlyData);
 
     final double maxValue = yearlyData.values.fold(0.0, (max, v) => v > max ? v : max);
-    final double maxY = maxValue * 1.1;
-
+    final double maxY = maxValue > 0.0 ? maxValue * 1.5 : 1.0;
     // 각 막대의 데이터를 생성합니다.
     final List<BarChartGroupData> barGroups = List.generate(yearLabels.length, (index) {
-      final dataValue = yearlyData[index] ?? 0.0; // 연도별 데이터 값 또는 기본값
+      final dataValue = yearlyData[index] ?? 0.01; // 연도별 데이터 값 또는 기본값
       return BarChartGroupData(
           x: index,
-          barRods: [BarChartRodData(y: dataValue, colors: [Color(0xFFFDD835)], width: 25, // 막대의 두께
-              borderRadius: BorderRadius.circular(4))]
+          barRods: [
+            BarChartRodData(
+                y: dataValue,
+                colors: [Color(0xFFFDD835)],
+                width: 25, // 막대의 두께
+                borderRadius: BorderRadius.circular(4))]
       );
     });
 
