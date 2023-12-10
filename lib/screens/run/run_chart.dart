@@ -18,10 +18,10 @@ class _BarChartSampleState extends State<BarChartSample> {
   List<bool> isSelected = [true, false, false, false]; // 버튼 선택 상태
   double totalSum = 0.0; // 여기에 상태 변수 추가
   final storage = FlutterSecureStorage();
-  late Map<int, double> weeklyData = {};
-  late Map<int, double> monthlyData = {};
-  late Map<int, double> yearlyData = {};
-  late Map<int, double> wholeData = {};
+  late Map<int, double> weeklyData = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
+  late Map<int, double> monthlyData = {0 : 0};
+  late Map<int, double> yearlyData = {0 : 0};
+  late Map<int, double> wholeData = {0 : 0};
   int walk = 0;
   int time = 0;
   int Kcal = 0;
@@ -61,26 +61,36 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
+        if (responseData == null || responseData.isEmpty) {
+        print("hi");
+          return {
+            'data': {0: 1.0},
+            'walk': 1,
+            'time': 1,
+            'kcal': 1
+          };
+        }
+
         Map<int, double> weeklySteps = {};
-        double totalWalk = 0;
-        double totalTime = 0;
-        double totalKcal = 0;
+        int totalWalk = 0;
+        int totalTime = 0;
+        int totalKcal = 0;
 
         for (var data in responseData) {
           DateTime date = DateTime.parse(data['date']);
           int weekdayIndex = date.weekday -1 ; // Dart의 DateTime에서 월요일은 1, 일요일은 7입니다.
           // 유효한 숫자인지 확인
-          double steps = data['steps']?.toDouble() ?? 0.0;
-          double durationMinutes = data['durationMinutes']?.toDouble() ?? 0.0;
-          double caloriesBurned = data['caloriesBurned']?.toDouble() ?? 0.0;
+          int steps = data['steps'] ?? 0;
+          int durationMinutes = data['durationMinutes'] ?? 0;
+          int caloriesBurned = data['caloriesBurned'] ?? 0;
 
           // 계산 로직에 NaN 또는 Infinity가 발생하지 않도록 검증
-          double point = (steps * 0.1 + durationMinutes * 0.01).isNaN ? 0.0 : steps * 0.1 + durationMinutes * 0.01;
+          double point = steps * 0.1 + durationMinutes * 0.01;
           point = double.parse(point.toStringAsFixed(1));
           weeklySteps[weekdayIndex] = point; // 요일에 해당하는 키에 steps 값을 할당합니다.
-          totalWalk += steps?.toInt() ?? 0;
-          totalTime += durationMinutes?.toInt() ?? 0;
-          totalKcal += caloriesBurned?.toInt() ?? 0;
+          totalWalk += steps;
+          totalTime += durationMinutes;
+          totalKcal += caloriesBurned;
         }
         print(weeklySteps);
 
@@ -94,7 +104,7 @@ class _BarChartSampleState extends State<BarChartSample> {
         throw Exception('Failed to load weekly data');
       }
     } catch (e) {
-      print(e.toString());
+      print('Error in _getWeeklyData: $e');
       // 에러 처리 로직
       return {}; // 빈 맵 반환
     }
@@ -120,25 +130,36 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
+        if (responseData == null || responseData.isEmpty) {
+          print("hi");
+          return {
+            'data': {0: 1.0},
+            'walk': 1,
+            'time': 1,
+            'kcal': 1
+          };
+        }
         Map<int, double> monthlySteps = {};
-        double totalWalk = 0;
-        double totalTime = 0;
-        double totalKcal = 0;
+        int totalWalk = 0;
+        int totalTime = 0;
+        int totalKcal = 0;
 
         for (var data in responseData) {
           DateTime date = DateTime.parse(data['date']);
           int dayIndex = date.day - 1; // 달의 날짜 인덱스 (0부터 시작)
 
-          double steps = data['steps']?.toDouble() ?? 0.0;
-          double durationMinutes = data['durationMinutes']?.toDouble() ?? 0.0;
+          int steps = data['steps'] ?? 0;
+          int durationMinutes = data['durationMinutes'] ?? 0;
+          int caloriesBurned = data['caloriesBurned'] ?? 0;
+
           double point = steps * 0.1 + durationMinutes * 0.01;
-          double caloriesBurned = data['caloriesBurned']?.toDouble() ?? 0.0;
           point = double.parse(point.toStringAsFixed(1));
 
           monthlySteps[dayIndex] = point; // 해당 날짜에 대한 데이터를 매핑합니다.
-          totalWalk += steps?.toInt() ?? 0;
-          totalTime += durationMinutes?.toInt() ?? 0;
-          totalKcal += caloriesBurned?.toInt() ?? 0;
+
+          totalWalk += steps;
+          totalTime += durationMinutes;
+          totalKcal += caloriesBurned;
         }
         print(monthlySteps);
         return {
@@ -174,24 +195,35 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
+        if (responseData == null || responseData.isEmpty) {
+          print("hi");
+          return {
+            'data': {0: 1.0},
+            'walk': 1,
+            'time': 1,
+            'kcal': 1
+          };
+        }
+
         Map<int, double> yearlySteps = {};
-        double totalWalk = 0;
-        double totalTime = 0;
-        double totalKcal = 0;
+        int totalWalk = 0;
+        int totalTime = 0;
+        int totalKcal = 0;
 
         for (var key in responseData.keys) {
           List<String> dateParts = key.split('-');
           int monthIndex = int.parse(dateParts[1]) - 1;
 
-          double steps = responseData[key]['steps']?.toDouble() ?? 0.0;
-          double durationMinutes = responseData[key]['durationMinutes']?.toDouble() ?? 0.0;
+          int steps = responseData[key]['steps'] ?? 0;
+          int durationMinutes = responseData[key]['durationMinutes'] ?? 0;
+          int caloriesBurned = responseData[key]['caloriesBurned'] ?? 0;
           double point = steps * 0.1 + durationMinutes * 0.01;
-          double caloriesBurned = responseData[key]['caloriesBurned']?.toDouble() ?? 0.0;
+          point = double.parse(point.toStringAsFixed(1));
 
           yearlySteps[monthIndex] = point; // 해당 월에 대한 데이터를 매핑합니다.
-          totalWalk += steps?.toInt() ?? 0;
-          totalTime += durationMinutes?.toInt() ?? 0;
-          totalKcal += caloriesBurned?.toInt() ?? 0;
+          totalWalk += steps;
+          totalTime += durationMinutes;
+          totalKcal += caloriesBurned;
         }
 
         return {
@@ -227,26 +259,37 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        double totalWalk = 0;
-        double totalTime = 0;
-        double totalKcal = 0;
+        if (responseData['steps'] == 0 && responseData['durationMinutes'] == 0 && responseData['caloriesBurned'] == 0) {
+          print("hi");
+          return {
+            'data': {0: 1.0},
+            'walk': 1,
+            'time': 1,
+            'kcal': 1
+          };
+        }
 
-        double steps = responseData['steps']?.toDouble() ?? 0.0;
-        double durationMinutes = responseData['durationMinutes']?.toDouble() ?? 0.0;
-        double caloriesBurned = responseData['caloriesBurned']?.toDouble() ?? 0.0;
+        int totalWalk = 0;
+        int totalTime = 0;
+        int totalKcal = 0;
+
+        int steps = responseData['steps'] ?? 0;
+        int durationMinutes = responseData['durationMinutes'] ?? 0;
+        int caloriesBurned = responseData['caloriesBurned'] ?? 0;
+
         // 포인트 계산 로직 (예시: steps와 durationMinutes의 비율을 조정하여 포인트를 계산)
         double point = steps * 0.1 + durationMinutes * 0.01; // 소수점 첫째 자리까지
         Map<int, double> wholeSteps = {0: point};
 
-        totalWalk += steps?.toInt() ?? 0;
-        totalTime += durationMinutes?.toInt() ?? 0;
-        totalKcal += caloriesBurned?.toInt() ?? 0;
+        totalWalk += steps;
+        totalTime += durationMinutes;
+        totalKcal += caloriesBurned;
         return {
           'data': wholeSteps,
           'walk': totalWalk,
           'time': totalTime,
           'kcal': totalKcal
-        };;
+        };
       }
       else {
         throw Exception('Failed to load weekly data');
@@ -259,38 +302,37 @@ class _BarChartSampleState extends State<BarChartSample> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.only(top: 50),
-        child: Column(
-          children: [
-            _buildButtonBar(),
-            SizedBox(height: 10.0),// 버튼바를 구성하는 함
-            Align(
-              alignment: Alignment.centerLeft, // Aligns the _showInfo() widget to the left
-              child: Padding(
-                padding: EdgeInsets.only(left: 20), // Adjust the value as needed
-                child: _showInfo(),
+          return Scaffold(
+            body: Padding(
+              padding: EdgeInsets.only(top: 50),
+              child: Column(
+                children: [
+                  _buildButtonBar(),
+                  SizedBox(height: 10.0),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: _showInfo(),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    height: 200,
+                    width: 400,
+                    child: _buildChart(_selectedChart),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 10),
-            Container(
-              height: 200, // 차트의 높이
-              width: 400, // 차트의 너비
-              child: _buildChart(_selectedChart), // 현재 선택된 차트
-            ),
-          ],
-        ),
-      ),
-    );
+          );
   }
 
   @override
   void initState() {
     super.initState();
-    _loadWeeklyData();
+    _loadChartData(); // 데이터 로딩 함수 호출
   }
-
 
   Widget _buildMonthSelector() {
     return _selectedChart == 1 ? Container(
@@ -328,6 +370,7 @@ class _BarChartSampleState extends State<BarChartSample> {
   }
 
   void _loadChartData() async {
+    print("Loading chart data");
     switch (_selectedChart) {
       case 0:
         await _loadWeeklyData();
@@ -344,18 +387,23 @@ class _BarChartSampleState extends State<BarChartSample> {
       default:
         await _loadWeeklyData();
     }
+    setState(() {
+
+    });
   }
 
   Future<Map<String, dynamic>> _loadWeeklyData() async {
     try {
       var result = await _getWeeklyData();
+      print("Result from _getWeeklyData: $result");
       setState(() {
-        weeklyData = result['data']  as Map<int, double>;
+        weeklyData = result['data'] as Map<int, double>;
         totalSum = calculateSum(weeklyData);
-        walk = (result['walk'] as double).toInt(); // double 타입에서 int 타입으로 변환
-        time = (result['time'] as double).toInt(); // double 타입에서 int 타입으로 변환
-        Kcal = (result['kcal'] as double).toInt(); // double 타입에서 int 타입으로 변환
+        walk = result['walk'] as int? ?? 0;
+        time = result['time'] as int? ?? 0;
+        Kcal = result['kcal'] as int? ?? 0; // double 타입에서 int 타입으로 변환
       });
+      print("weeklyData는 $weeklyData");
       return result;
     } catch (e) {
       print('Error loading weekly data: $e');
@@ -369,9 +417,9 @@ class _BarChartSampleState extends State<BarChartSample> {
       setState(() {
         monthlyData = result['data']  as Map<int, double>;
         totalSum = calculateSum(monthlyData);
-        walk = (result['walk'] as double).toInt(); // double 타입에서 int 타입으로 변환
-        time = (result['time'] as double).toInt(); // double 타입에서 int 타입으로 변환
-        Kcal = (result['kcal'] as double).toInt(); // double 타입에서 int 타입으로 변환
+        walk = result['walk'] as int? ?? 0;
+        time = result['time'] as int? ?? 0;
+        Kcal = result['kcal'] as int? ?? 0;// double 타입에서 int 타입으로 변환
 
       });
       return result;
@@ -387,9 +435,9 @@ class _BarChartSampleState extends State<BarChartSample> {
     setState(() {
       yearlyData = result['data'] as Map<int, double>;
       totalSum = calculateSum(yearlyData);
-      walk = (result['walk'] as double).toInt(); // double 타입에서 int 타입으로 변환
-      time = (result['time'] as double).toInt(); // double 타입에서 int 타입으로 변환
-      Kcal = (result['kcal'] as double).toInt(); // double 타입에서 int 타입으로 변환
+      walk = result['walk'] as int? ?? 0;
+      time = result['time'] as int? ?? 0;
+      Kcal = result['kcal'] as int? ?? 0;// double 타입에서 int 타입으로 변환
 
     });
     return result;
@@ -405,10 +453,11 @@ class _BarChartSampleState extends State<BarChartSample> {
     setState(() {
       wholeData = result['data']  as Map<int, double>;
       totalSum = calculateSum(wholeData);
-      walk = (result['walk'] as double).toInt(); // double 타입에서 int 타입으로 변환
-      time = (result['time'] as double).toInt(); // double 타입에서 int 타입으로 변환
-      Kcal = (result['kcal'] as double).toInt(); // double 타입에서 int 타입으로 변환
+      walk = result['walk'] as int? ?? 0;
+      time = result['time'] as int? ?? 0;
+      Kcal = result['kcal'] as int? ?? 0; // double 타입에서 int 타입으로 변환
     });
+    print("Updated weeklyData in setState: $weeklyData");
     return result;
     }  catch (e) {
       print('Error loading weekly data: $e');
@@ -624,39 +673,16 @@ class _BarChartSampleState extends State<BarChartSample> {
     );
   }
 
-  void _updateChartData(Map<String, dynamic> result) {
-    setState(() {
-      if (result.isNotEmpty) {
-        if (result.containsKey('data')) {
-          var chartData = result['data'] as Map<int, double>;
-          totalSum = calculateSum(chartData);
-
-          if (result.containsKey('walk')) {
-            walk = (result['walk'] as double).toInt();
-          }
-          if (result.containsKey('time')) {
-            time = (result['time'] as double).toInt();
-          }
-          if (result.containsKey('kcal')) {
-            Kcal = (result['kcal'] as double).toInt();
-          }
-        }
-      }
-    });
-  }
-
   Widget _buildChart(int chartIndex) {
     Map<int, double> data;
     Widget chart;
-
     switch (chartIndex) {
       case 0:
       // 주별 데이터 설정
-
         data = weeklyData;
+        print("Data in _buildChart: $data");
         chart = _buildWeeklyChart(data);
         break;
-
       case 1:
       // 월별 데이터 설정
         data = monthlyData;
@@ -665,10 +691,12 @@ class _BarChartSampleState extends State<BarChartSample> {
 
       case 2:
         data = yearlyData;
+        print("yearlyData: $data");
         chart = _buildYearlyChart(data);
         break;
       case 3:
         data = wholeData;
+        print("wholedata $data");
         chart = _buildWholeChart(data);
         break;
       default:
@@ -702,6 +730,7 @@ class _BarChartSampleState extends State<BarChartSample> {
     // 각 막대의 데이터를 생성합니다.
     final List<BarChartGroupData> barGroups = List.generate(7, (index) {
       final dataValue = weeklyData[index] ?? 0.0; // 요일별 데이터 값 또는 기본값
+
       return BarChartGroupData(
         x: index,
         barRods: [

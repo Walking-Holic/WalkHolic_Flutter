@@ -40,7 +40,7 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
     super.initState();
     _loadUserProfile();
     accelerometerEvents.listen((AccelerometerEvent event) {
-      if (_isPlaying && event.x > 10) {
+      if (!_isPaused && event.x > 10) {
         setState(() => walk++);
       }
     });
@@ -322,7 +322,6 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
                 _isPaused = !_isPaused; // 일시정지 상태를 전환합니다.
                 if (_isPaused) {
                   _stopStopwatch();
-                  // 타이머를 일시정지합니다.
                 } else {
                   _startStopwatch(); // 타이머를 재개합니다.
                 }
