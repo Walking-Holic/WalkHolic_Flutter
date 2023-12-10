@@ -126,7 +126,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                     offsetX: 15,
                     offsetY: 44,
                     // You can add a custom marker image source if you want
-                    markerImageSrc: 'https://w7.pngwing.com/pngs/96/889/png-transparent-marker-map-interesting-places-the-location-on-the-map-the-location-of-the-thumbnail.png',
+                    markerImageSrc: 'https://images-ext-1.discordapp.net/external/FGNH5mBQok1YI_g1tzJ-XzezhTtTlZZqm2i6xALLJXE/https/t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png?format=webp&quality=lossless',
                   ));
                 });
               }),
@@ -149,15 +149,6 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                     mapController.setCenter(point);
                   } else {
                     _endPoint = point;
-                    markers.add(Marker(
-                      markerId: 'endMarker',
-                      latLng: point,
-                      width: 30,
-                      height: 44,
-                      offsetX: 15,
-                      offsetY: 44,
-                    ),
-                    );
                     polylines.add(Polyline(
                       polylineId: 'polyline${polylines.length}',
                       points: [_startPoint!, _endPoint!],

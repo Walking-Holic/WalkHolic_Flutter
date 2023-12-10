@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? email;
   int? id;
   String? rank;
-
+  int commentsCount = 0;
 
   final storage = FlutterSecureStorage();
   bool _isLoading = false;
@@ -256,12 +256,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         var responseData = response.data;
+        var comments = response.data['comments'] as List;
         trackInfo = Track(
           id: responseData['id'] ?? 0,
           wlkCoursFlagNm: responseData['title'] ?? '',
           wlkCoursNm: "(사용자 설정 게시글)", // wlkCoursNm에도 title 값을 사용
           averageScore: responseData['averageScore']?.toDouble() ?? 0.0,
-          commentCount: 0, // commentCount는 기본값으로 설정
+          commentCount: comments.length, // commentCount는 기본값으로 설정
           coursSpotLa: 0.0, // coursSpotLa는 기본값 또는 임의의 값으로 설정
           coursSpotLo: 0.0, // coursSpotLo는 기본값 또는 임의의 값으로 설정
         );
@@ -364,15 +365,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         onPressed: () {
+                          Navigator.pop(context);
                           if(trackInfo!.wlkCoursNm == "(사용자 설정 게시글)"){
                             Navigator.of(context).push(
                                 MaterialPageRoute(
-                                    builder: (context) => PostDetailsScreen(id: id)));
+                                    builder: (context) => PostDetailsScreen(id: id),
+                                ),
+                            ).then((_) async {
+                                 await _getIndividualTrack(id);
+                          });
                           } else
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => TrackDetail(id: id)));
-                        },
+                              builder: (context) => TrackDetail(id: id),
+                            ),
+                          ).then((_) async {
+                             await fetchDataForInfo(id);
+                          });},
                       ),
                     ),
                   ],
