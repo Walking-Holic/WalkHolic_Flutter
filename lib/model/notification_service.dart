@@ -42,16 +42,18 @@ class NotificationService {
       playSound: true,
     );
 
-    // iOS에서 채널을 등록합니다.
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>()!
-        .requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+// iOS에서 채널을 등록합니다.
+    var iosPlatformSpecificImplementation =
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
 
+    if (iosPlatformSpecificImplementation != null) {
+      await iosPlatformSpecificImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
     // 로컬 푸시 알림을 초기화
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
     print('Notification Channel Initialized');

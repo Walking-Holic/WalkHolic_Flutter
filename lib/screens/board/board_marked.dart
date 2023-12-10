@@ -122,7 +122,7 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
   }
 
 
-  Widget _buildPost(Post post) {
+  Widget _buildPost(Post post, int id) {
     String base64ImageUrl = post.imageUrl;
     if (base64ImageUrl.startsWith('data:image/png;base64,')) {
       base64ImageUrl =
@@ -139,7 +139,7 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => PostDetailsScreen(post: post)),
+              builder: (context) => PostDetailsScreen(id: id)),
         );
       },
       child: Padding(
@@ -291,7 +291,7 @@ class _MarkFeedScreenState extends State<MarkFeedScreen> {
           )
               : SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPost(posts[index]),
+                  (context, index) => _buildPost(posts[index], posts[index].id),
               childCount: posts.length,
             ),
           ),

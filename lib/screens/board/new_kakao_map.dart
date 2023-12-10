@@ -33,26 +33,39 @@ class _NewKakaoMapTestState extends State<NewKakaoMapTest> {
     await Future.delayed(Duration(seconds: 1));
 
     setState(() {
-
       List<LatLng> polylinePoints = [];
-      for (var coordinate in widget.coordinates) {
+      for (var i = 0; i < widget.coordinates.length; i++) {
+        var coordinate = widget.coordinates[i];
         double lat = coordinate['latitude'];
         double lng = coordinate['longitude'];
-        int sequence = coordinate['sequence'] ?? 0;
 
-        Marker marker = Marker(
-          markerId: sequence.toString(),
-          latLng: LatLng(lat, lng),
-          width: 30,
-          height: 44,
-          offsetX: 15,
-          offsetY: 44,
-          infoWindowContent: '작성자 경로 ${sequence.toString()}번 지점',
-          infoWindowRemovable: false,
-          infoWindowFirstShow: true,
-        );
+        // 첫 번째와 마지막 좌표에만 마커를 추가
+        if (i == 0 || i == widget.coordinates.length - 1) {
+          String markerImageSrc;
+          String data = '';
 
-        markers.add(marker);
+          if (i == 0) {
+            markerImageSrc = 'https://images-ext-1.discordapp.net/external/Fci0xx0t7a_rB5vEyljIyKoxNxkuvmM1lzltbndxXVY/https/t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png?format=webp&quality=lossless';
+            data = "출발";
+          } else {
+            markerImageSrc = 'https://images-ext-2.discordapp.net/external/KG-ZxumaqxAwKA1fjxeKjfBecseQUzCvxu0Q-UfJ_8c/http/i1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png?format=webp&quality=lossless';
+            data = "도착";
+          }
+
+          Marker marker = Marker(
+            markerId: i.toString(),
+            latLng: LatLng(lat, lng),
+            width: 30,
+            height: 44,
+            offsetX: 15,
+            offsetY: 44,
+            markerImageSrc: markerImageSrc,
+          );
+
+          markers.add(marker);
+        }
+
+        // 모든 좌표를 폴리라인 점으로 추가
         polylinePoints.add(LatLng(lat, lng));
       }
 

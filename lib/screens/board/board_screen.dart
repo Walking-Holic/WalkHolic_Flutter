@@ -25,10 +25,9 @@ class _FeedScreenState extends State<FeedScreen> {
   String? email;
   String? rank;
   bool isLoading = true; // 데이터 로딩 상태 표시
+  final storage = FlutterSecureStorage();
 
   Future<void> _loadUserProfile() async {
-    final storage = FlutterSecureStorage();
-
     try {
       String? accessToken = await storage.read(key: 'accessToken');
       Dio dio = Dio();
@@ -121,7 +120,7 @@ class _FeedScreenState extends State<FeedScreen> {
     _loadUserProfile();
   }
 
-  Widget _buildPost(Post post) {
+  Widget _buildPost(Post post, int id) {
 
     String base64ImageUrl = post.imageUrl;
     if (base64ImageUrl.startsWith('data:image/png;base64,')) {
@@ -140,7 +139,7 @@ class _FeedScreenState extends State<FeedScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => PostDetailsScreen(post: post)),
+              builder: (context) => PostDetailsScreen(id: id)),
         );
       },
       child: Padding(
@@ -297,7 +296,7 @@ class _FeedScreenState extends State<FeedScreen> {
           ) // 로딩 인디케이터 표시
               : SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPost(reversedPosts[index]),
+                  (context, index) => _buildPost(reversedPosts[index], reversedPosts[index].id),
               childCount: reversedPosts.length,
             ),
           ),

@@ -142,6 +142,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                       height: 44,
                       offsetX: 15,
                       offsetY: 44,
+                        markerImageSrc: 'https://images-ext-1.discordapp.net/external/Fci0xx0t7a_rB5vEyljIyKoxNxkuvmM1lzltbndxXVY/https/t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png?format=webp&quality=lossless',
                     ),
                     );
                     points.add(_startPoint!);

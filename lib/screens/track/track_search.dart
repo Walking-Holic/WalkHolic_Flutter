@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fresh_store_ui/constants.dart';
+import 'package:fresh_store_ui/screens/board/board_track.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -296,9 +297,15 @@ class _SearchTrackState extends State<SearchTrack> {
                 itemBuilder: (context, index) {
                   if (index < _searchResults.length) {
                     final route = _searchResults[index];
-                    // 마지막 데이터를 확인하고 해당 데이터 아래에 추가 메시지를 표시
                     return Padding(
                       padding: EdgeInsets.only(top: 7.0),
+                        child: InkWell( // InkWell로 각 항목을 감싸서 클릭 가능하게 만듭니다.
+                          onTap: () {
+                            // 클릭 시 TrackDetail 페이지로 이동하며 id를 파라미터로 전달합니다.
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => TrackDetail(id: route.id),
+                            ));
+                          },
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -364,6 +371,7 @@ class _SearchTrackState extends State<SearchTrack> {
                           ],
                         ),
                       ),
+                    ),
                     );
                   }else if (_isLastPage) {
                     // 마지막 페이지 메시지 표시

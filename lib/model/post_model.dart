@@ -140,14 +140,32 @@ class Comment {
 }
 
 class DetailPost {
+  int id;
+  String title;
   String content;
+  double totalDistance;
+  String difficulty;
+  String estimatedTime;
   double averageScore;
+  String rank;
+  String authorName;
+  String imageUrl;
+  String authorImageUrl;
   List<Coordinate> coordinates;
   List<Comment> comments;
 
   DetailPost({
+    required this.id,
+    required this.title,
     required this.content,
+    required this.totalDistance,
+    required this.difficulty,
+    required this.estimatedTime,
     required this.averageScore,
+    required this.rank,
+    required this.authorName,
+    required this.imageUrl,
+    required this.authorImageUrl,
     required this.coordinates,
     required this.comments,
   });
@@ -162,10 +180,27 @@ class DetailPost {
     commentsFromJson.map((i) => Comment.fromJson(i)).toList();
 
     return DetailPost(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
       content: json['content'] ?? '',
-      averageScore: json['averageScore'] ?? 0.0,
+      totalDistance: json['totalDistance']?.toDouble() ?? 0.0,
+      difficulty: json['difficulty'] ?? '',
+      estimatedTime: json['estimatedTime'] ?? '',
+      averageScore: json['averageScore']?.toDouble() ?? 0.0,
+      imageUrl: json['pathImage'] != null
+          ? "data:image/png;base64,${json['pathImage']}"
+          : '',
+      // null 체크 추가
+      authorName: json['member'] != null ? json['member']['nickname'] ?? '' : '',
+      // null 체크 추가
+      authorImageUrl: json['member'] != null
+          ? "data:image/png;base64,${json['member']['profileImage']}"
+          : '',
+      rank: json['member'] != null ? json['member']['rank'] ?? 'unknown' : 'unknown',
       coordinates: coordinatesList,
       comments: commentsList,
     );
   }
 }
+
+
