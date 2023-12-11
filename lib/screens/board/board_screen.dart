@@ -300,8 +300,18 @@ class _FeedScreenState extends State<FeedScreen> with RouteAware {
     return Scaffold(
       backgroundColor: Colors.white,
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.black)) // 로딩 인디케이터 표시
-          : CustomScrollView(
+          ? Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // 최소 필요한 공간만 사용
+          children: [
+            CircularProgressIndicator(color: Colors.black),
+            SizedBox(height: 10), // 로딩 인디케이터와 텍스트 사이의 간격
+            Text("게시글을 불러오는 중입니다..", style: TextStyle(color: Colors.black)),
+          ],
+        ),
+      )
+          :
+      CustomScrollView(
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([

@@ -528,8 +528,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
             _buildInfoCard(precipitationStatus),
           ],
         ),
+        SizedBox(height: 20),
+        _buildLoadingIndicator(),
       ],
     );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return weatherData.isEmpty
+        ? Column(
+      children: [
+        CircularProgressIndicator(color: Colors.black),
+        SizedBox(height: 10), // 인디케이터와 텍스트 사이 간격
+        Text("날씨 데이터를 불러오는 중입니다..", style: TextStyle(color: ftColor)),
+      ],
+    )
+        : SizedBox(); // 날씨 데이터가 있을 경우 로딩 인디케이터를 숨깁니다.
   }
 
   Widget _buildLowerHalf() {

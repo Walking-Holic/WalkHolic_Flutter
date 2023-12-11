@@ -352,14 +352,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                strokeWidth: 5.0,
-              ),
-              SizedBox(height: 20),
+              CircularProgressIndicator(color: Colors.black
+                ),
+              SizedBox(height: 10),
               Text(
-                "프로필 정보를 불러오는 중...",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                "프로필 정보를 불러오는 중입니다..", style: TextStyle(color: Colors.black)
               ),
             ],
           ),

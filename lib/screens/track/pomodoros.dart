@@ -139,6 +139,7 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
       // 산책 관련 상태를 초기화합니다.
       _isPlaying = false;
       _isPaused = false;
+      walk = 0;
       // 기타 산책 관련 상태 변수들도 여기에서 초기화할 수 있습니다.
     });
   }
