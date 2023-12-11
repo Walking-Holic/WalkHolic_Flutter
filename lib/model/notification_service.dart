@@ -9,7 +9,6 @@ class NotificationService {
   factory NotificationService() {
     return _instance;
   }
-
   // private 생성자
   NotificationService._();
   // 로컬 푸시 알림을 사용하기 위한 플러그인 인스턴스 생성
@@ -19,8 +18,7 @@ class NotificationService {
   Future<void> init() async {
     // 알림을 표시할 때 사용할 로고를 지정
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('ic_launcher');
-
+    AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const DarwinInitializationSettings initializationSettingsDarwin =
     DarwinInitializationSettings(
@@ -32,7 +30,6 @@ class NotificationService {
     // 안드로이드 플랫폼에서 사용할 초기화 설정
     const InitializationSettings initializationSettings =
     InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsDarwin);
-
 
     // 채널 생성 추가
     const AndroidNotificationChannel androidChannel = AndroidNotificationChannel(

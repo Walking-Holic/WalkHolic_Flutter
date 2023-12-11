@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:fresh_store_ui/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import '../../login/update_profile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fresh_store_ui/model/notification_service.dart';
@@ -55,9 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final now = DateTime.now().add(Duration(hours: 9));
   late TimeOfDay _newTime = TimeOfDay(hour: now.hour, minute: now.minute);
   double point = 0.0;
+
   @override
   void initState() {
     super.initState();
+    _newTime = TimeOfDay(hour: now.hour, minute: now.minute); // 현재 시간으로 TimeOfDay 설정
     _fetchAndSetProfileData();
   }
 
@@ -74,9 +77,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print('Notification Permission status: $status');
 
     if (status.isGranted) {
-      // 알림 스케줄링
       final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
-        tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+        tz.getLocation('Asia/Seoul'),
         scheduledTime.year,
         scheduledTime.month,
         scheduledTime.day,
@@ -84,9 +86,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         scheduledTime.minute,
       );
 
-      NotificationService().scheduleNotification(
-          scheduledTimeZone
-      );
+      // 알림 스케줄링
+      await NotificationService().scheduleNotification(scheduledTimeZone);
     } else {
       // 권한이 없으면 권한 요청
       var result = await Permission.scheduleExactAlarm.request();
@@ -101,9 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           scheduledTime.minute,
         );
 
-        NotificationService().scheduleNotification(
-            scheduledTimeZone
-        );
+        await NotificationService().scheduleNotification(scheduledTimeZone);
       } else {
         // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
         print('Notification Permission denied');
@@ -151,9 +150,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (picked != null) {
       // TimeOfDay를 DateTime으로 변
-      DateTime selectedDateTime;
-      // 현재 시간의 이전 시간으로 설정
-      final pickedDateTime = DateTime(
+      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      // 선택한 시간으로 TZDateTime 객체를 설정합니다.
+      tz.TZDateTime selectedDateTime = tz.TZDateTime(
+        tz.local,
         now.year,
         now.month,
         now.day,
@@ -161,12 +161,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         picked.minute,
       );
 
-      if (pickedDateTime.isBefore(now)) {
+      if (selectedDateTime.isBefore(now)) {
         // 예를 들어, 현재 시간이 10:30이고 사용자가 09:00으로 설정하면
         // 알림은 내일 09:00에 예약됩니다.
-        selectedDateTime = pickedDateTime.add(Duration(days: 1));
-      } else {
-        selectedDateTime = pickedDateTime;
+        selectedDateTime = selectedDateTime.add(Duration(days: 1));
       }
 
       print('선택한 알림 시간: $selectedDateTime');

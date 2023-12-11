@@ -229,6 +229,8 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  SizedBox(height: 16),
+                  Icon(Icons.directions_walk, size: 100),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 20.0),
                     child: Text(
