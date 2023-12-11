@@ -30,9 +30,6 @@ void main() async {
 
   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
-
-  runApp(const FreshBuyerApp());
   // runApp(const MyApp());
 
 }
@@ -46,15 +43,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late SharedPreferences prefs; // added
-  bool? firstRun; // 초기에 null로 설정
+  bool firstRun = true; // 초기에 null로 설정
 
   // added
   void initPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    final isFirstRun = prefs.getBool('isFirstRun') ?? true; // null일 경우 true로 처리
-    setState(() {
-      firstRun = isFirstRun;
-    });
+    final isFirstRun = prefs.getBool('isFirstRun');
+    if (isFirstRun != null) {
+      // 값이 null이 아닌 경우에만 업데이트
+      setState(() {
+        firstRun = !isFirstRun;
+      });
+    }
   }
 
   // added
@@ -68,19 +68,9 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    if (firstRun == null) {
-      return MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(), // 로딩 인디케이터
-          ),
-        ),
-      );
-    }
-
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: firstRun! ? ThemeData(
+      title: '잠깐 시간 될까',
+      theme: firstRun ? ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE7626C),
         textTheme: const TextTheme(
           displayLarge: TextStyle(
@@ -93,25 +83,7 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: Colors.white,
         // ...
       ),
-      home: firstRun! ? const GuideMainScreen() : const GuideMainScreen(), // added
-    );
-  }
-}
-
-
-class FreshBuyerApp extends StatelessWidget {
-  const FreshBuyerApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '잠깐 시간 될까',
-      theme: appTheme(),
-      routes: routes,
-      home: const LoginPage(),
+      home: firstRun! ? const GuideMainScreen() : const LoginPage(), // added
     );
   }
 }
