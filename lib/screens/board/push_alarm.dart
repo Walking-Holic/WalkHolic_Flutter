@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fresh_store_ui/model/notification_service.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class AlarmHomeScreen extends StatefulWidget {
   const AlarmHomeScreen({Key? key}) : super(key: key);
@@ -51,7 +52,6 @@ class AlarmHomeScreenState extends State<AlarmHomeScreen> {
     }
   }
 
-
   Future<void> _scheduleNotification(DateTime scheduledTime) async {
     // 권한 확인
     var status = await Permission.scheduleExactAlarm.status;
@@ -59,25 +59,40 @@ class AlarmHomeScreenState extends State<AlarmHomeScreen> {
 
     if (status.isGranted) {
       // 알림 스케줄링
+      final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
+        tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+        scheduledTime.year,
+        scheduledTime.month,
+        scheduledTime.day,
+        scheduledTime.hour,
+        scheduledTime.minute,
+      );
+
       NotificationService().scheduleNotification(
-          scheduledTime
+          scheduledTimeZone
       );
     } else {
       // 권한이 없으면 권한 요청
       var result = await Permission.scheduleExactAlarm.request();
       if (result.isGranted) {
         // 권한 허용 시 알림 스케줄링
-        NotificationService().scheduleNotification(
-            scheduledTime
+        final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
+          tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+          scheduledTime.year,
+          scheduledTime.month,
+          scheduledTime.day,
+          scheduledTime.hour,
+          scheduledTime.minute,
         );
+
+        NotificationService().scheduleNotification(
+            scheduledTimeZone);
       } else {
         // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
         print('Notification Permission denied');
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -105,25 +120,6 @@ class AlarmHomeScreenState extends State<AlarmHomeScreen> {
     );
   }
 
-  // void _toggleTimer() {
-  //   if (_timer?.isActive == true) {
-  //     _stopTimer();
-  //   } else {
-  //     _startTimer();
-  //   }
-  // }
-
-  // void _startTimer() {
-  //   _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-  //     setState(() {
-  //       _counter++;
-  //       if (_counter == _selectedTime.hour * 3600 + _selectedTime.minute * 60) {
-  //         _scheduleNotification();
-  //         _stopTimer();
-  //       }
-  //     });
-  //   });
-  // }
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -146,8 +142,6 @@ class AlarmHomeScreenState extends State<AlarmHomeScreen> {
       );
 
       if (pickedDateTime.isBefore(now)) {
-        // 예를 들어, 현재 시간이 10:30이고 사용자가 09:00으로 설정하면
-        // 알림은 내일 09:00에 예약됩니다.
         selectedDateTime = pickedDateTime.add(Duration(days: 1));
       } else {
         selectedDateTime = pickedDateTime;
@@ -162,6 +156,4 @@ class AlarmHomeScreenState extends State<AlarmHomeScreen> {
       });
     }
   }
-
-
 }

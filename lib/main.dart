@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fresh_store_ui/routes.dart';
 import 'package:fresh_store_ui/theme.dart';
 import 'package:fresh_store_ui/login/login_page.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:fresh_store_ui/model/notification_service.dart';
-import 'dart:io';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,19 +46,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late SharedPreferences prefs; // added
-  bool firstRun = true; // added
+  bool? firstRun; // 초기에 null로 설정
 
   // added
   void initPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    final isFirstRun = prefs.getBool('isFirstRun');
-    if (isFirstRun == false) {
-      setState(
-            () {
-          firstRun = false;
-        },
-      );
-    }
+    final isFirstRun = prefs.getBool('isFirstRun') ?? true; // null일 경우 true로 처리
+    setState(() {
+      firstRun = isFirstRun;
+    });
   }
 
   // added
@@ -74,10 +68,19 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    if (firstRun == null) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(), // 로딩 인디케이터
+          ),
+        ),
+      );
+    }
+
     return MaterialApp(
-      navigatorObservers: [routeObserver],
       title: 'Flutter Demo',
-      theme: firstRun ? ThemeData(
+      theme: firstRun! ? ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE7626C),
         textTheme: const TextTheme(
           displayLarge: TextStyle(
@@ -90,7 +93,7 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: Colors.white,
         // ...
       ),
-      home: firstRun ? const GuideMainScreen() : const GuideMainScreen(), // added
+      home: firstRun! ? const GuideMainScreen() : const GuideMainScreen(), // added
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:fresh_store_ui/constants.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../../login/update_profile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fresh_store_ui/model/notification_service.dart';
@@ -74,16 +75,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (status.isGranted) {
       // 알림 스케줄링
+      final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
+        tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+        scheduledTime.year,
+        scheduledTime.month,
+        scheduledTime.day,
+        scheduledTime.hour,
+        scheduledTime.minute,
+      );
+
       NotificationService().scheduleNotification(
-          scheduledTime
+          scheduledTimeZone
       );
     } else {
       // 권한이 없으면 권한 요청
       var result = await Permission.scheduleExactAlarm.request();
       if (result.isGranted) {
         // 권한 허용 시 알림 스케줄링
+        final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
+          tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+          scheduledTime.year,
+          scheduledTime.month,
+          scheduledTime.day,
+          scheduledTime.hour,
+          scheduledTime.minute,
+        );
+
         NotificationService().scheduleNotification(
-            scheduledTime
+            scheduledTimeZone
         );
       } else {
         // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
@@ -557,30 +576,5 @@ class _getUserInfoState extends State<getUserInfo> {
         },
       ),
     );
-  }
-
-  Future<void> _scheduleNotification(DateTime scheduledTime) async {
-    // 권한 확인
-    var status = await Permission.scheduleExactAlarm.status;
-    print('Notification Permission status: $status');
-
-    if (status.isGranted) {
-      // 알림 스케줄링
-      NotificationService().scheduleNotification(
-          scheduledTime
-      );
-    } else {
-      // 권한이 없으면 권한 요청
-      var result = await Permission.scheduleExactAlarm.request();
-      if (result.isGranted) {
-        // 권한 허용 시 알림 스케줄링
-        NotificationService().scheduleNotification(
-            scheduledTime
-        );
-      } else {
-        // 권한 거부 시 처리 (예: 사용자에게 권한 필요 메시지 표시)
-        print('Notification Permission denied');
-      }
-    }
   }
 }

@@ -9,6 +9,7 @@ class NotificationService {
   factory NotificationService() {
     return _instance;
   }
+
   // private 생성자
   NotificationService._();
   // 로컬 푸시 알림을 사용하기 위한 플러그인 인스턴스 생성
@@ -18,7 +19,7 @@ class NotificationService {
   Future<void> init() async {
     // 알림을 표시할 때 사용할 로고를 지정
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('drawable/splash');
+    AndroidInitializationSettings('ic_launcher');
 
 
     const DarwinInitializationSettings initializationSettingsDarwin =
@@ -59,30 +60,6 @@ class NotificationService {
     print('Notification Channel Initialized');
   }
 
-  // Future<void> showNotification(int targetNumber) async {
-  //   // 푸시 알림의 ID
-  //   const int notificationId = 0;
-  //   // 알림 채널 설정값 구성
-  //   const AndroidNotificationDetails androidNotificationDetails =
-  //   AndroidNotificationDetails(
-  //     'counter_channel', // 알림 채널 ID
-  //     'Counter Channel', // 알림 채널 이름
-  //     channelDescription:
-  //     'This channel is used for counter-related notifications',
-  //     // 알림 채널 설명
-  //     importance: Importance.high, // 알림 중요도
-  //   );
-  //   // 알림 상세 정보 설정
-  //   const NotificationDetails notificationDetails =
-  //   NotificationDetails(android: androidNotificationDetails);
-  //   // 알림 보이기
-  //   await flutterLocalNotificationsPlugin.show(
-  //     notificationId, // 알림 ID
-  //     '산책 시간 알림', // 알림 제목
-  //     '설정하신 산책 시간이 다 되었습니다!', // 알림 메시지
-  //     notificationDetails, // 알림 상세 정보
-  //   );
-  // }
   // 푸시 알림 권한 요청
   Future<PermissionStatus> requestNotificationPermissions() async {
     final status = await Permission.notification.request();
@@ -90,7 +67,7 @@ class NotificationService {
   }
 
   // 푸시 알림 생성
-  Future<void> scheduleNotification(DateTime scheduledTime) async {
+  Future<void> scheduleNotification(tz.TZDateTime scheduledTime) async {
     const int notificationId = 0;
 
     const AndroidNotificationDetails androidNotificationDetails =
@@ -120,7 +97,7 @@ class NotificationService {
     // 여기서 푸시될 정보를 표시
     await flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
-      '잠깐 시간 될까',
+      'Walk Holic',
       '알람 설정한 산책 시간 입니다',
       scheduledTimeZone,
       notificationDetails,
