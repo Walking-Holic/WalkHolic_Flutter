@@ -39,7 +39,7 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
+	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need your location for XYZ feature.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library for XYZ feature.</string>
