@@ -513,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch, // 좌우로 스트레치
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.only(top: 50),
           child: IconButton(
             iconSize: 60, // 아이콘 크기를 적절하게 조정
             icon: Image.asset('$kIconPath/searchsearch.png'),

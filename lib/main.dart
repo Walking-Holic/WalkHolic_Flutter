@@ -23,9 +23,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await notificationService.init();
   tz.initializeTimeZones();
-
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstRun = prefs.getBool('isFirstRun') ?? true; // 기본값을 true로 설정
   //runApp(const FreshBuyerApp());
-  runApp(const MyApp());
+  if (isFirstRun) {
+    await prefs.setBool('isFirstRun', false); // 앱이 처음 실행된 것으로 표시
+  }
+  runApp(MyApp(firstRun: isFirstRun));
   FlutterNativeSplash.remove();
 
   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +39,8 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool firstRun;
+  const MyApp({Key? key, required this.firstRun}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -46,24 +51,6 @@ class _MyAppState extends State<MyApp> {
   bool firstRun = true; // 초기에 null로 설정
 
   // added
-  void initPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    final isFirstRun = prefs.getBool('isFirstRun');
-    if (isFirstRun != null) {
-      // 값이 null이 아닌 경우에만 업데이트
-      setState(() {
-        firstRun = !isFirstRun;
-      });
-    }
-  }
-
-  // added
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    initPrefs();
-  }
 
   // This widget is the root of your application.
   @override
@@ -71,10 +58,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: '잠깐 시간 될까',
       theme: firstRun ? ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFE7626C),
+        scaffoldBackgroundColor: Color(0xFFF4EDDB),
         textTheme: const TextTheme(
           displayLarge: TextStyle(
-            color: Color(0xFF232B55),
+            color: Color(0xFFF4EDDB),
           ),
         ),
         cardColor: const Color(0xFFF4EDDB),
