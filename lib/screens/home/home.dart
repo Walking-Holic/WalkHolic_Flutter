@@ -423,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
     children: [
       SizedBox(height: 500),
       IconButton(
-          iconSize: 120,
+          iconSize: 10,
           icon: Image.asset('$kIconPath/play2.png'),
           onPressed: () {
             Navigator.push(
@@ -442,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
     children: [
       SizedBox(height: 550),
       IconButton(
-      iconSize: 60,
+      iconSize: 50,
       icon: Image.asset('$kIconPath/setting.png'),
       onPressed: () {
         _setDistance();

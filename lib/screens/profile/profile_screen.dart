@@ -88,13 +88,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // 알림 스케줄링
       await NotificationService().scheduleNotification(scheduledTimeZone);
+    } else if (status.isDenied || status.isPermanentlyDenied) {
+      // 권한이 거부되었거나 영구적으로 거부된 경우
+      // 사용자에게 설정 페이지로 이동하도록 유도
+      openAppSettings();
     } else {
-      // 권한이 없으면 권한 요청
+      // 권한이 아직 결정되지 않았을 경우, 권한 요청
       var result = await Permission.scheduleExactAlarm.request();
       if (result.isGranted) {
         // 권한 허용 시 알림 스케줄링
         final tz.TZDateTime scheduledTimeZone = tz.TZDateTime(
-          tz.getLocation('Asia/Seoul'), // 혹은 필요한 시간대에 맞게 설정
+          tz.getLocation('Asia/Seoul'),
           scheduledTime.year,
           scheduledTime.month,
           scheduledTime.day,

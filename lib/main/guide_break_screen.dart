@@ -22,7 +22,7 @@ class GuideBreakScreen extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(
-                  right: 300,
+                  right: 250,
                 ),
                 child: Text(
                   "3. 랭크",
