@@ -47,7 +47,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
            offsetX: 15,
            offsetY: 44,
            markerImageSrc:
-           'https://w7.pngwing.com/pngs/96/889/png-transparent-marker-map-interesting-places-the-location-on-the-map-the-location-of-the-thumbnail.png',
+           'https://images-ext-1.discordapp.net/external/FGNH5mBQok1YI_g1tzJ-XzezhTtTlZZqm2i6xALLJXE/https/t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png?format=webp&quality=lossless',
          ));
          //print("Markers: $markers");
          mapController.setCenter(LatLng(lat,lng)); //현재 위도, 경도로 center 이동
@@ -93,11 +93,9 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     // 위도와 경도 세트로 points에 저장되어 있음.
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('내 경로 찍어보기')),
       body: Column(
         children: [
           Expanded(
@@ -175,6 +173,14 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
           Container(
             width: double.infinity,
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              textStyle: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.0,
+              ),
+            ),
               child: Text("다시 찍기"),
               onPressed: () => _locateMe(),
             ),
@@ -182,6 +188,14 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
           Container(
             width: double.infinity,
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15.0,
+                ),
+              ),
               child: Text("제출하기"),
               onPressed: () => _submit(),
             ),

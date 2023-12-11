@@ -107,8 +107,6 @@ class _NewKakaoMapTestState extends State<NewKakaoMapTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:
-      const Text('경로 확인하기')),
       body: KakaoMap(
         onMapCreated: (controller) {
           mapController = controller;

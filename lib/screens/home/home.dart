@@ -58,33 +58,55 @@ class _HomeScreenState extends State<HomeScreen> {
     PermissionStatus _permissionGranted;
     LocationData _locationData;
 
+    // 위치 서비스 활성화 확인
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
       if (!_serviceEnabled) {
-        return;
+        return; // 위치 서비스가 비활성화된 경우 함수 종료
       }
     }
 
+    // 권한 상태 확인
     _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
+    if (_permissionGranted == PermissionStatus.denied || _permissionGranted == PermissionStatus.deniedForever) {
+      // 권한이 거부되었거나 영구적으로 거부된 경우, 사용자에게 권한 요청
       _permissionGranted = await location.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
-        return;
+        // 권한이 허용되지 않은 경우, 사용자에게 추가 조치가 필요함을 알리는 대화상자 표시
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("위치 서비스 권한 필요"),
+              content: Text("이 앱은 위치 서비스 권한이 필요합니다."),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("확인"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return; // 권한이 허용되지 않은 경우 함수 종료
       }
     }
 
+    // 위치 데이터 가져오기
     _locationData = await location.getLocation();
     globalLatitude = _locationData.latitude ?? 0.0;
     globalLongitude = _locationData.longitude ?? 0.0;
-    print("현재위치 위도 $globalLatitude");
-    print("현재위치 경도 $globalLongitude");
   }
 
 
  Widget _buildBody(double id) {
-    return Expanded(
-      child: KakaoMap(
+    return Column(
+        children: <Widget>[
+      Expanded(
+    child: KakaoMap(
         onMapCreated: (controller) {
           mapController = controller;
           setState(() {
@@ -106,7 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onMarkerTap: onMarkerTap, // 마커 탭 이벤트 핸들러 추가
         center: LatLng(globalLatitude, globalLongitude),
       ),
-    );
+    ),
+   ]
+   );
   }
 
   Future<void> fetchDataForInfo(int id) async {
@@ -392,10 +416,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
   Widget _buildPlayButton() {
-    return
-      Align(
-        alignment: Alignment.bottomCenter,
-        child: IconButton(
+    return Row(
+    children: [
+      SizedBox(width: 140),
+      Column(
+    children: [
+      SizedBox(height: 500),
+      IconButton(
           iconSize: 120,
           icon: Image.asset('$kIconPath/play2.png'),
           onPressed: () {
@@ -404,35 +431,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => PedometerAndStopwatchUI())
             );
           },
-        ),
-    );
+      ),
+      ],
+    ),
+    ]);
   }
 
   Widget _buildSettingButton() {
-    return Row(
-      children: [
-        SizedBox(width: 30),
-      Column(
-      mainAxisAlignment: MainAxisAlignment.end, // 하단 정렬
-      crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-      children: [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: IconButton(
-            iconSize: 60,
-            icon: Image.asset('$kIconPath/setting.png'),
-            onPressed: () {
-              _setDistance();
-            },
-          ),
-        ),
-        SizedBox(height: 30), // 아이콘과 다음 위젯 사이의 공간
-        // 추가로 다른 위젯들이 필요하다면 여기에 추가
-      ],
-      ),
-    ]
-    );
+    return Column(
+    children: [
+      SizedBox(height: 550),
+      IconButton(
+      iconSize: 60,
+      icon: Image.asset('$kIconPath/setting.png'),
+      onPressed: () {
+        _setDistance();
+      },
+    ),
+    ]);
   }
+
 
   void _setDistance() async {
     // 사용자가 선택할 수 있는 거리 옵션들

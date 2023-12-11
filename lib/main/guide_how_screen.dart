@@ -14,7 +14,7 @@ class GuideHowScreen extends StatelessWidget {
           children: <Widget>[
             const Padding(
               padding: EdgeInsets.only(
-                right: 150,
+                right: 120,
               ),
               child: Text(
                 "1. 주변 산책로 확인",
@@ -26,7 +26,7 @@ class GuideHowScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 30,
             ),
             const Text(
               '현재 위치를 기반으로',

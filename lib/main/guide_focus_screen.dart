@@ -16,10 +16,10 @@ class GuideFocusScreen extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(
-                  right: 250,
+                  right: 220,
                 ),
                 child: Text(
-                  "2. 커뮤니티",
+                  "2. 커뮤니티 ",
                   style: TextStyle(
                     color: Color(0xFFE7626C),
                     fontWeight: FontWeight.w900,
@@ -28,7 +28,7 @@ class GuideFocusScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 50,
+                height: 80,
               ),
               Text(
                 '사용자끼리 산책로를 공유하고',
@@ -51,7 +51,7 @@ class GuideFocusScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 90,
+                height: 50,
               ),
               Image.asset(
                 'assets/icons/main2.png',
