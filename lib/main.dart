@@ -14,6 +14,7 @@ import 'main/guide_main_screen.dart';
 
 const String kakaoMapKey = 'c7f0222c04ff0b7bb1656cf815b683d2';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   // await dotenv.load(fileName: 'assets/env/.env');
@@ -74,6 +75,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       title: 'Flutter Demo',
       theme: firstRun ? ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE7626C),

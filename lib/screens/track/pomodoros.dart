@@ -143,7 +143,7 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
     });
   }
 
-  Future<void> _RankUp(String date, int steps, int durationMinutes, int caloriesBurned) async {
+  Future<void> _saveResult(String date, int steps, int durationMinutes, int caloriesBurned) async {
     final url = Uri.parse('$IP_address/api/exercise/save');
     try {
       String? accessToken = await storage.read(key: 'accessToken');
@@ -345,18 +345,18 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
     Map<String, dynamic> serverResponse = await _sendDataToServer();
     print(serverResponse); // 서버 응답 출력
 
-    if (serverResponse.containsKey('updated') && serverResponse['updated']) {
+    if (serverResponse['updated'] == true) {
       await _loadNewProfile();
-      _showRankUpDialog(rank ?? 'default', newRank ?? 'default');
+      await _showRankUpDialog(rank ?? 'default', newRank ?? 'default');
     }
-    _RankUp(serverResponse['date'],
+    await _saveResult(serverResponse['date'],
         serverResponse['steps'],
         serverResponse['durationMinutes'],
         serverResponse['caloriesBurned']);
   }
 
-  void _showRankUpDialog(String oldRank, String newRank) {
-    showDialog(
+  Future<void> _showRankUpDialog(String oldRank, String newRank) async {
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -369,7 +369,10 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
               AnimatedSwitcher(
                 duration: Duration(seconds: 2),
                 transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(scale: animation, child: child);
+                  return ScaleTransition(
+                      scale: animation,
+                      child: child
+                  );
                 },
                 child: Container(
                   key: ValueKey(newRank), // key를 Container에 적용
@@ -410,7 +413,6 @@ class _PedometerAndStopwatchUIState extends State<PedometerAndStopwatchUI> {
               onPressed: () async {
                 newwalk = walk;
                 newtime = time;
-                await _sendDataToServer();
                 _resetStopwatch();
                 _resetWalk();
                 await someFunction();

@@ -12,6 +12,8 @@ import '../../model/rank_image.dart';
 import 'board_detail.dart';
 import 'package:fresh_store_ui/model/post_model.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 class FeedScreen extends StatefulWidget {
   @override
   _FeedScreenState createState() => _FeedScreenState();
@@ -19,12 +21,14 @@ class FeedScreen extends StatefulWidget {
 
 @override
 
-class _FeedScreenState extends State<FeedScreen> {
+class _FeedScreenState extends State<FeedScreen> with RouteAware {
   List<Post> posts = [];
   String currentUserEmail = '';
   String? email;
   String? rank;
   bool isLoading = true; // 데이터 로딩 상태 표시
+  bool _reloading = false;
+
   final storage = FlutterSecureStorage();
 
   Future<void> _loadUserProfile() async {
@@ -120,6 +124,27 @@ class _FeedScreenState extends State<FeedScreen> {
     _loadUserProfile();
   }
 
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    // 이전 화면으로부터 돌아왔을 때 수행할 로직
+    _fetchPosts();
+    print("ㄱㄱ");
+    _loadUserProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
   Widget _buildPost(Post post, int id) {
 
     String base64ImageUrl = post.imageUrl;
@@ -136,11 +161,15 @@ class _FeedScreenState extends State<FeedScreen> {
 
     return InkWell(
       onTap: () async {
-        Navigator.push(
+        setState(() => isLoading = true); // 로딩 시작
+        await Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => PostDetailsScreen(id: id)),
-        );
+          MaterialPageRoute(builder: (context) => PostDetailsScreen(id: id)),
+        ).then((_) async {
+          await _fetchPosts();
+          await _loadUserProfile();
+          setState(() => isLoading = false); // 로딩 완료
+        });
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -266,11 +295,13 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Post> reversedPosts = posts.reversed.toList();
-
+    // 로딩 상태에 따라 전체 화면에 로딩 인디케이터를 표시하거나,
+    // 로딩이 완료되면 실제 컨텐츠를 표시합니다.
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.black)) // 로딩 인디케이터 표시
+          : CustomScrollView(
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
@@ -290,14 +321,10 @@ class _FeedScreenState extends State<FeedScreen> {
               ),
             ]),
           ),
-          isLoading
-              ? SliverFillRemaining(
-            child: Center(child: CircularProgressIndicator(color: Colors.black)),
-          ) // 로딩 인디케이터 표시
-              : SliverList(
+          SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPost(reversedPosts[index], reversedPosts[index].id),
-              childCount: reversedPosts.length,
+                  (context, index) => _buildPost(posts.reversed.toList()[index], posts.reversed.toList()[index].id),
+              childCount: posts.length,
             ),
           ),
         ],
@@ -420,10 +447,7 @@ Future<void> deletePost(int postId, BuildContext context) async {
       print('Post deleted successfully');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)),
-      ).then((_) {
-        // 여기에서 화면을 새로 고치는 로직
-      });
+        MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)));
     } else {
       // 서버 응답 에러 처리
       print('Failed to delete post: ${response.statusCode}');

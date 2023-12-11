@@ -125,7 +125,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 content: '프로필 수정이 완료되었습니다'
             );
           }
-      ).then((_) => Navigator.push(context, MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 3))));
+      ).then((_) => Navigator.push(context, MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 4))));
       return true;
     } else if (response.statusCode == 400) {
       // 이메일 형식 오류 처리

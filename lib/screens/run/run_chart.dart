@@ -28,7 +28,6 @@ class _BarChartSampleState extends State<BarChartSample> {
   int selectedYear = DateTime.now().year; // 현재 년도
   int selectedMonth = DateTime.now().month; // 현재 월
 
-
   Future<Map<String, dynamic>> _getWeeklyData() async {
     String? accessToken = await storage.read(key: 'accessToken');
     DateTime today = DateTime.now();
@@ -439,6 +438,11 @@ class _BarChartSampleState extends State<BarChartSample> {
   }
 
   Widget _showInfo() {
+    Duration duration = Duration(seconds: time);
+
+    String formattedTime = "${duration.inHours.toString().padLeft(2, '0')}:"
+        "${(duration.inMinutes % 60).toString().padLeft(2, '0')}:"
+        "${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
     DateTime now = DateTime.now();
     Widget infoWidget;
     switch (_selectedChart) {
@@ -562,7 +566,7 @@ class _BarChartSampleState extends State<BarChartSample> {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "$time",
+                  formattedTime,
                   style: GoogleFonts.anton(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,

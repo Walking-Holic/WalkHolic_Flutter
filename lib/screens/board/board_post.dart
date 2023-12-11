@@ -355,9 +355,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
               ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               // 숫자 키패드와 소수점 입력 허용
+              maxLength: 5,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}')),
                 // 숫자와 소수점 한 자리만 허용
+                LengthLimitingTextInputFormatter(8),
+                // 최대 길이를 8자로 제한
               ],
             ),
             SizedBox(height: 10),
@@ -366,7 +369,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
               decoration: InputDecoration(
                 labelText: '예상 소요시간 (분 단위로 작성)',
               ),
+              maxLength: 3,
               keyboardType: TextInputType.text, // 텍스트 입력 키보드
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly, // 숫자만 허용
+                // 숫자와 소수점 한 자리만 허용
+                LengthLimitingTextInputFormatter(3),
+                // 최대 길이를 8자로 제한
+              ],
             ),
             SizedBox(height: 10),
             DropdownButton<String>(
