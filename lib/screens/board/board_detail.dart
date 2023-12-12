@@ -463,46 +463,34 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(5.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child:Row(
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
-                            SizedBox(width: 5), // 아이콘과 텍스트 사이 간격
-                            Text(
-                              "난이도: ${getKoreanDifficulty(postDetail!.difficulty)}",
-                              style: TextStyle(fontWeight: FontWeight.bold), // 굵은 폰트
-                            ),
-                          ],
+                        Icon(Icons.terrain, size: 22.0),
+                        SizedBox(width: 8.0),
+                        Expanded(
+                          child: Text("${getKoreanDifficulty(postDetail!.difficulty)}",
+                            style: TextStyle(fontSize: 17.0),
+                          ),
                         ),
+                        Spacer(), // 첫 번째 Spacer 추가
+                        Icon(Icons.directions, size: 22.0),
                         SizedBox(width: 10),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
-                            SizedBox(width: 5),
-                            Text(
-                              "예상 소요 시간: ${postDetail!.estimatedTime} 분",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                        Expanded(
+                          child: Text("${postDetail!.totalDistance} km",
+                            style: TextStyle(fontSize: 17.0),
+                          ),
                         ),
+                        Spacer(), // 두 번째 Spacer 추가
+                        Icon(Icons.timer, size: 22.0),
                         SizedBox(width: 10),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.circle, size: 10.0), // 동그라미 아이콘
-                            SizedBox(width: 5),
-                            Text(
-                              "경로 길이: ${postDetail!.totalDistance} km",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                        Expanded(
+                          child: Text("${postDetail!.estimatedTime} 분",
+                              style: TextStyle(fontSize: 17.0)
+                          ),
                         ),
                       ],
                     ),
+
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.0),
