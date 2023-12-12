@@ -58,13 +58,13 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: '잠깐 시간 될까',
       theme: firstRun ? ThemeData(
-        scaffoldBackgroundColor: Color(0xFFF4EDDB),
+        scaffoldBackgroundColor: Colors.white,
         textTheme: const TextTheme(
           displayLarge: TextStyle(
-            color: Color(0xFFF4EDDB),
+            color: Colors.white,
           ),
         ),
-        cardColor: const Color(0xFFF4EDDB),
+        cardColor: Colors.white,
       ): ThemeData(
         // 그 외 경우 사용할 테마
         scaffoldBackgroundColor: Colors.white,
