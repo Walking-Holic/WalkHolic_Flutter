@@ -376,38 +376,44 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          '세부 정보 보기',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0
+                      child: Builder(
+                        builder: (newContext) => ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
                           ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          if(trackInfo!.wlkCoursNm == "(사용자 설정 게시글)"){
-                            Navigator.of(context).push(
-                                MaterialPageRoute(
+                          child: Text(
+                            '세부 정보 보기',
+                            style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(newContext); // 현재 context 대신 newContext 사용
+
+                            // 약간의 지연 후 새 화면으로 이동
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              if (trackInfo!.wlkCoursNm == "(사용자 설정 게시글)") {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
                                     builder: (context) => PostDetailsScreen(id: id),
-                                ),
-                            ).then((_) async {
-                                 await _getIndividualTrack(id);
-                          });
-                          } else
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => TrackDetail(id: id),
-                            ),
-                          ).then((_) async {
-                             await fetchDataForInfo(id);
-                          });},
+                                  ),
+                                ).then((_) async {
+                                  await _getIndividualTrack(id);
+                                });
+                              } else {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => TrackDetail(id: id),
+                                  ),
+                                ).then((_) async {
+                                  await fetchDataForInfo(id);
+                                });
+                              }
+                            });
+                          },
+                        ),
                       ),
                     ),
+
                   ],
                 ),
             ),
@@ -416,14 +422,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
   Widget _buildPlayButton() {
-    return Row(
-    children: [
-      SizedBox(width: 140),
-      Column(
-    children: [
-      SizedBox(height: 500),
-      IconButton(
-          iconSize: 10,
+    return
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: IconButton(
+          iconSize: 120,
           icon: Image.asset('$kIconPath/play2.png'),
           onPressed: () {
             Navigator.push(
@@ -431,24 +434,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => PedometerAndStopwatchUI())
             );
           },
-      ),
-      ],
-    ),
-    ]);
+        ),
+      );
   }
 
   Widget _buildSettingButton() {
-    return Column(
-    children: [
-      SizedBox(height: 550),
-      IconButton(
-      iconSize: 50,
-      icon: Image.asset('$kIconPath/setting.png'),
-      onPressed: () {
-        _setDistance();
-      },
-    ),
-    ]);
+    return Row(
+        children: [
+          SizedBox(width: 30),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end, // 하단 정렬
+            crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+            children: [
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton(
+                  iconSize: 60,
+                  icon: Image.asset('$kIconPath/setting.png'),
+                  onPressed: () {
+                    _setDistance();
+                  },
+                ),
+              ),
+              SizedBox(height: 30), // 아이콘과 다음 위젯 사이의 공간
+              // 추가로 다른 위젯들이 필요하다면 여기에 추가
+            ],
+          ),
+        ]
+    );
   }
 
 

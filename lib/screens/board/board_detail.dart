@@ -339,7 +339,16 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
     if (postDetail == null) {
       return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 최소 필요한 공간만 사용
+            children: [
+              CircularProgressIndicator(color: Colors.black),
+              SizedBox(height: 10), // 로딩 인디케이터와 텍스트 사이의 간격
+              Text("게시글 세부 정보를 불러오는 중입니다..", style: TextStyle(color: Colors.black)),
+            ],
+          ),
+        ),
       ); // 로딩 인디케이터 표시
     }
     else {
