@@ -107,6 +107,24 @@ class _NewKakaoMapTestState extends State<NewKakaoMapTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, // AppBar 배경을 투명하게 설정
+        elevation: 0, // 그림자 제거
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로가기 버튼 아이콘
+          onPressed: () {
+            Navigator.of(context).pop(); // 현재 화면을 스택에서 제거하여 뒤로 가기
+          },
+        ),
+        centerTitle: true, // 제목을 중앙에 배치
+        title: Text(
+          "작성자의 경로",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
       body: KakaoMap(
         onMapCreated: (controller) {
           mapController = controller;
