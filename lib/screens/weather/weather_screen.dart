@@ -83,12 +83,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 
-
   // 현재 (위치/시간) 받아오고, 시간 단위로 다음 예보 뽑아오기
   Future<void> getWeatherData() async {
     try {
       DateTime scheduledTime = DateTime.now();
-      DateTime updatedTime = scheduledTime.add(Duration(hours: 8));
+      DateTime updatedTime = scheduledTime.add(Duration(minutes: -45));
       monthDay = '${updatedTime.month}월 ${updatedTime.day}일';
       print(updatedTime);
       print(monthDay);
@@ -145,7 +144,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         // API 응답이 성공
         final jsonString = response.body;
         print(jsonString);
-        var processedData = processWeatherData(jsonString);
+        var processedData = processWeatherData(jsonString, updatedTime);
         if (mounted) {
           setState(() {
             weatherData = processedData;
@@ -210,7 +209,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
 
-  String processWeatherData(String jsonString) {
+  String processWeatherData(String jsonString, DateTime dateTime) {
     Map<String, Map<String, String>> informations = {};
 
     var jsonData = json.decode(jsonString);
@@ -229,6 +228,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
 
     var result = '';
+    var prevTime = '';
     var skyTemp, ptyTemp, rn1Temp, t1hTemp, rehTemp, vecTemp, wsdTemp, lgtTemp;
     for (var key in informations.keys) {
       var val = informations[key]!;
@@ -278,8 +278,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
       result += template;
       result += "\n";
+      DateTime nextDate;
+      var date = '${dateTime.month}월 ${dateTime.day}일';
+      if(hourlyWeather.isEmpty){
+        print("weather is empty");
+        prevTime = key;
+      } else if (int.parse(prevTime) > int.parse(key)){
+        nextDate = dateTime.add(Duration(days: 1));
+        date = '${nextDate.month}월 ${nextDate.day}일';
+      }
       hourlyWeather.add({
-        'time': '$monthDay ${key.substring(0, 2)}시',
+        //'time': '$monthDay ${key.substring(0, 2)}시',
+        'time': '$date ${key.substring(0, 2)}시',
         'temperature': '$t1hTemp℃',
         'skyStatus': '$skyTemp',
         'ptyStatus': '$ptyTemp',
@@ -485,6 +495,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 40),
             _buildUpperHalf(),
             SizedBox(height: 20),
             Container(
