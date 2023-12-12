@@ -129,7 +129,6 @@ class _FeedScreenState extends State<FeedScreen> with RouteAware {
     super.didPopNext();
     // 이전 화면으로부터 돌아왔을 때 수행할 로직
     _fetchPosts();
-    print("ㄱㄱ");
     _loadUserProfile();
   }
 
@@ -388,6 +387,104 @@ class _FeedScreenState extends State<FeedScreen> with RouteAware {
       ),
     );
   }
+  Future<void> deletePost(int postId, BuildContext context) async {
+
+    try {
+      String? accessToken = await storage.read(key: 'accessToken');
+
+      var Url = Uri.parse("$IP_address/api/path/delete/$postId"); //본인 IP 주소를  localhost 대신 넣기
+      var response = await http.delete(Url, // 서버의 프로필 정보 API
+        headers: <String, String>{
+          'Authorization': 'Bearer $accessToken'},
+      );
+
+      print(postId);
+      print(response.body);
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        // 게시물 삭제 성공 처
+
+          setState(() => isLoading = true); // 로딩 시작
+          await _fetchPosts(); // 다시 게시물 목록을 불러옵니다.
+          setState(() => isLoading = false); // 로딩 종료
+
+      } else {
+        // 서버 응답 에러 처리
+        print('Failed to delete post: ${response.statusCode}');
+      }
+    } catch (e) {
+      // HTTP 요청 예외 처리
+      print('Error: $e');
+    }
+  }
+
+  void _showPostOptions(BuildContext context, Post post) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150, // 높이 설정
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.edit),
+                title: Text('게시물 수정', style:
+                TextStyle(
+                    fontWeight: FontWeight.w900)),
+                onTap: () async {
+                  Navigator.pop(context); // 하단 시트 닫기
+
+                  // 'NewPostScreen'으로 네비게이트 하며, 수정할 게시물 객체를 전달
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewPostScreen(postToEdit: post),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('게시물 삭제', style:
+                TextStyle(
+                    fontWeight: FontWeight.w900)),
+                onTap: () async {
+                  Navigator.pop(context); // 하단 시트 닫기
+                  // 삭제 확인 대화상자 표시
+                  await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('게시물 삭제'),
+                        content: Text('정말 이 게시글을 삭제하시겠습니까?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('예'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              deletePost(post.id, context);
+                            },
+                          ),
+                          TextButton(
+                            child: Text('아니오'),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // '아니오' 선택 시
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 /*floatingActionButton: FloatingActionButton(
@@ -437,99 +534,27 @@ class _FeedScreenState extends State<FeedScreen> with RouteAware {
 }*/
 
 
-Future<void> deletePost(int postId, BuildContext context) async {
+class MyAlertDialog extends StatelessWidget {
+  final String title;
+  final String content;
 
-  try {
-    String? accessToken = await storage.read(key: 'accessToken');
+  const MyAlertDialog({
+    Key? key,
+    required this.title,
+    required this.content,
+  }) : super(key: key);
 
-    var Url = Uri.parse("$IP_address/api/path/delete/$postId"); //본인 IP 주소를  localhost 대신 넣기
-    var response = await http.delete(Url, // 서버의 프로필 정보 API
-      headers: <String, String>{
-        'Authorization': 'Bearer $accessToken'},
-    );
-
-    print(postId);
-    print(response.body);
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      // 게시물 삭제 성공 처리
-      print('Post deleted successfully');
-        Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)));
-      } else {
-      // 서버 응답 에러 처리
-      print('Failed to delete post: ${response.statusCode}');
-    }
-  } catch (e) {
-    // HTTP 요청 예외 처리
-    print('Error: $e');
-  }
-}
-
-void _showPostOptions(BuildContext context, Post post) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return Container(
-        height: 150, // 높이 설정
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.edit),
-              title: Text('게시물 수정', style:
-              TextStyle(
-                  fontWeight: FontWeight.w900)),
-              onTap: () async {
-                Navigator.pop(context); // 하단 시트 닫기
-
-                // 'NewPostScreen'으로 네비게이트 하며, 수정할 게시물 객체를 전달
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewPostScreen(postToEdit: post),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('게시물 삭제', style:
-              TextStyle(
-                  fontWeight: FontWeight.w900)),
-              onTap: () async {
-                Navigator.pop(context); // 하단 시트 닫기
-                // 삭제 확인 대화상자 표시
-                await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('게시물 삭제'),
-                      content: Text('정말 이 게시글을 삭제하시겠습니까?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('예'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            deletePost(post.id, context);
-                          },
-                        ),
-                        TextButton(
-                          child: Text('아니오'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // '아니오' 선택 시
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK'),
         ),
-      );
-    },
-  );
+      ],
+    );
+  }
 }

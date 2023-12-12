@@ -201,6 +201,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
     // 사용자 입력 데이터 수집
     Map<String, dynamic> userData = _collectUserData(); //데이타 받아오기
     // 모든 필드가 채워졌는지 확인
+    bool isDifficultySet = _difficulty != null && _difficulty!.isNotEmpty;
+
     bool isDataComplete = userData['title']?.isNotEmpty == true &&
         userData['content']?.isNotEmpty == true &&
         userData['totalDistance'] != 0.0 &&
@@ -213,6 +215,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
           .showSnackBar(SnackBar(content: Text('모든 필드를 채워 주세요')));
       return;
     } // KakaoMapTest에서 반환된 데이터로 대체
+
+    if (!isDifficultySet) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('난이도를 설정해주세요')),
+      );
+      return;
+    }
 
     final storage = FlutterSecureStorage();
     String? accessToken = await storage.read(key: 'accessToken');

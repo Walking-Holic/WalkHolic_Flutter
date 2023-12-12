@@ -138,7 +138,7 @@ class _SearchTrackState extends State<SearchTrack> {
   }
 
   final List<WalkRoute> walkRoutes = [
-    // 추가 데이터...
+
   ];
 
   final List<String> _difficultyOptions = [

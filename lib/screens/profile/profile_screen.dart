@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:fresh_store_ui/constants.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 import '../../login/update_profile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fresh_store_ui/model/notification_service.dart';
@@ -91,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else if (status.isDenied || status.isPermanentlyDenied) {
       // 권한이 거부되었거나 영구적으로 거부된 경우
       // 사용자에게 설정 페이지로 이동하도록 유도
-      openAppSettings();
+      NotificationService().requestNotificationPermissions();
     } else {
       // 권한이 아직 결정되지 않았을 경우, 권한 요청
       var result = await Permission.scheduleExactAlarm.request();
@@ -157,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       // 선택한 시간으로 TZDateTime 객체를 설정합니다.
       tz.TZDateTime selectedDateTime = tz.TZDateTime(
-        tz.local,
+        tz.getLocation('Asia/Seoul'),
         now.year,
         now.month,
         now.day,
@@ -184,8 +183,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
   }
-
-
 
   void _requestNotificationPermissions() async {
     final status = await NotificationService().requestNotificationPermissions();
@@ -305,12 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text('로그아웃'),
         icon: Icon(Icons.logout, color: Colors.red),
         titleColor: const Color(0xFFF75555),
-        onClick:() {
-          Navigator.push(
-            context as BuildContext,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        }
+        onClick: _logout,
     ),
     ProfileOption(
       title: Text(
@@ -397,6 +389,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _logout() async {
+    await storage.delete(key: 'accessToken'); // accessToken 삭제
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+    ); // 모든 이전 라우트를 제거하고 로그인 화면으로 이동
+  }
 
   Widget _buildOption(BuildContext context, int index, ProfileOption data) {
     return ListTile(
@@ -529,36 +528,36 @@ class _getUserInfoState extends State<getUserInfo> {
                                     Row(
                                       children: <Widget>[
                                         RankImage.getRankImage('bronze', width: 38, height: 38),
-                                        SizedBox(width: 5), // 이미지와 텍스트 사이 간격
-                                        Text('BRONZE 0 ~ 5000 포인트')
+                                        Spacer(), // RankImage와 Text 사이에 유연한 공간 추가
+                                        Text('BRONZE 0 ~ 5000')
                                       ],
                                     ),
                                     Row(
                                       children: <Widget>[
                                         RankImage.getRankImage('silver', width: 38, height: 38),
-                                        SizedBox(width: 5), // 간격
-                                        Text('SILVER 5000 ~ 10000 포인트')
+                                        Spacer(), // RankImage와 Text 사이에 유연한 공간 추가
+                                        Text('SILVER 5000 ~ 10000')
                                       ],
                                     ),
                                     Row(
                                       children: <Widget>[
                                         RankImage.getRankImage('gold', width: 38, height: 38),
-                                        SizedBox(width: 5), // 간격
-                                        Text('GOLD 10000 ~ 30000 포인트')
+                                        Spacer(), // RankImage와 Text 사이에 유연한 공간 추가
+                                        Text('GOLD 10000 ~ 30000')
                                       ],
                                     ),
                                     Row(
                                       children: <Widget>[
                                         RankImage.getRankImage('platinum', width: 38, height: 38),
-                                        SizedBox(width: 5), // 간격
-                                        Text('PLATINUM 30000 ~ 70000 포인트')
+                                        Spacer(), // RankImage와 Text 사이에 유연한 공간 추가
+                                        Text('PLATINUM 30000 ~ 70000')
                                       ],
                                     ),
                                     Row(
                                       children: <Widget>[
                                         RankImage.getRankImage('diamond', width: 38, height: 38),
-                                        SizedBox(width: 5), // 간격
-                                        Text('DIAMOND 70000이상 포인트')
+                                        Spacer(), // RankImage와 Text 사이에 유연한 공간 추가
+                                        Text('DIAMOND 70000 이상')
                                       ],
                                     ),
                                   ],
