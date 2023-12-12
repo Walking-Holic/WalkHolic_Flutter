@@ -232,7 +232,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
   Future<void> _editComment(Comment comment, int index) async {
     TextEditingController editController =
-        TextEditingController(text: comment.contents);
+    TextEditingController(text: comment.contents);
     double newRating = comment.score; // 기존 별점을 초기값으로 설정
 
     // 대화 상자를 표시하여 수정 내용을 받습니다.
@@ -260,6 +260,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
               TextField(
                 controller: editController,
                 decoration: InputDecoration(labelText: '현재 후기'),
+                maxLength: 50, // 최대 글자 수를 50으로 제한
               ),
             ],
           ),
@@ -664,6 +665,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                 vertical: 5.0, horizontal: 10.0), // 패딩 조절
                           ),
                           style: TextStyle(fontSize: 16.0), // 글꼴 크기 조절
+                          maxLength: 50, // 최대 글자 수를 50으로 제한
                         ),
                       ),
                       IconButton(
