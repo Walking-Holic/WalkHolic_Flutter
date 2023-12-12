@@ -466,31 +466,30 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     child:Row(
                       children: [
                         Icon(Icons.terrain, size: 22.0),
-                        SizedBox(width: 8.0),
+                        SizedBox(width: 15),
                         Expanded(
                           child: Text("${getKoreanDifficulty(postDetail!.difficulty)}",
-                            style: TextStyle(fontSize: 17.0),
+                            style: TextStyle(fontSize: 16.0),
                           ),
                         ),
                         Spacer(), // 첫 번째 Spacer 추가
                         Icon(Icons.directions, size: 22.0),
-                        SizedBox(width: 10),
+                        SizedBox(width: 15),
                         Expanded(
                           child: Text("${postDetail!.totalDistance} km",
-                            style: TextStyle(fontSize: 17.0),
+                            style: TextStyle(fontSize: 16.0),
                           ),
                         ),
                         Spacer(), // 두 번째 Spacer 추가
                         Icon(Icons.timer, size: 22.0),
-                        SizedBox(width: 10),
+                        SizedBox(width: 15),
                         Expanded(
                           child: Text("${postDetail!.estimatedTime} 분",
-                              style: TextStyle(fontSize: 17.0)
+                              style: TextStyle(fontSize: 16.0)
                           ),
                         ),
                       ],
                     ),
-
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.0),

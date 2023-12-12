@@ -270,7 +270,7 @@ class _BarChartSampleState extends State<BarChartSample> {
   Widget build(BuildContext context) {
           return Scaffold(
             body: Padding(
-              padding: EdgeInsets.only(top: 50),
+              padding: EdgeInsets.only(top: 60),
               child: Column(
                 children: [
                   _buildButtonBar(),
@@ -314,7 +314,7 @@ class _BarChartSampleState extends State<BarChartSample> {
         child: DropdownButton<int>(
           value: selectedMonth,
           icon: Icon(Icons.arrow_drop_down, color: Colors.black, size: 30), // 아이콘 스타일 변경
-          style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold), // 텍스트 스타일 변경
+          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold), // 텍스트 스타일 변경
           dropdownColor: Colors.white,
           items: List<DropdownMenuItem<int>>.generate(12, (index) {
             return DropdownMenuItem<int>(
@@ -853,7 +853,7 @@ class _BarChartSampleState extends State<BarChartSample> {
           rightTitles: SideTitles(showTitles: false),
           leftTitles: SideTitles(
             showTitles: true,
-            reservedSize: 45,
+            reservedSize: 50,
             getTitles: (value) {
               // maxY 값과 다른 y축 값들을 정수로 변환하여 반환
               return '${value.toInt()}';

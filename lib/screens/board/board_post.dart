@@ -306,9 +306,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
               decoration: InputDecoration(
                 labelText: '제목',
               ),
-              maxLength: 15, // 제목의 최대 길이를 15자로 제한합니다.
+              maxLength: 20, // 제목의 최대 길이를 15자로 제한합니다.
               inputFormatters: [
-                LengthLimitingTextInputFormatter(15), // 여기에도 같은 제한을 적용합니다.
+                LengthLimitingTextInputFormatter(20), // 여기에도 같은 제한을 적용합니다.
               ],
             ),
             SizedBox(height: 10),
@@ -317,11 +317,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
               decoration: InputDecoration(
                 labelText: '내용',
               ),
-              maxLength: 100,
+              maxLength: 200,
               // 내용의 최대 길이를 100자로 제한합니다.
               maxLines: 6,
               inputFormatters: [
-                LengthLimitingTextInputFormatter(100), // 여기에도 같은 제한을 적용합니다.
+                LengthLimitingTextInputFormatter(200), // 여기에도 같은 제한을 적용합니다.
               ],
             ),
             SizedBox(height: 10),
