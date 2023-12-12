@@ -32,6 +32,8 @@ class _TrackDetailState extends State<TrackDetail> {
   bool _isLoading = false;
   final TextEditingController _commentController = TextEditingController();
 
+  bool isLoading = true; // 데이터 로딩 상태 표시
+
   Future<void> _loadUserProfile() async {
     try {
       String? accessToken = await storage.read(key: 'accessToken');
@@ -97,7 +99,11 @@ class _TrackDetailState extends State<TrackDetail> {
   void initState() {
     super.initState();
     _loadUserProfile();
-    fetchDetail(widget.id); // 안전한 호출
+    fetchDetail(widget.id).then((_) {
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
   Future<void> _editComment(Comment comment, int index) async {
@@ -310,12 +316,21 @@ class _TrackDetailState extends State<TrackDetail> {
 
   @override
   Widget build(BuildContext context) {
-    if (trackDetailInfo == null) {
-      // 로딩 상태 표시
-      return CircularProgressIndicator();
-    }
+
     return Scaffold(
-      body: SingleChildScrollView(
+        backgroundColor: Colors.white,
+        body: isLoading
+            ? Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 최소 필요한 공간만 사용
+            children: [
+              CircularProgressIndicator(color: Colors.black),
+              SizedBox(height: 10), // 로딩 인디케이터와 텍스트 사이의 간격
+              Text("세부정보를 불러오는 중입니다..", style: TextStyle(color: Colors.black)),
+            ],
+          ),
+        ) :
+      SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10.0),
           child: Container(
