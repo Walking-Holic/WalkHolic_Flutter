@@ -25,6 +25,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _editProfileFormKey = GlobalKey<FormState>();
   final storage = FlutterSecureStorage();
   Uint8List? profileImage;
+  String? name;
+  String ? nickname;
 
   TextEditingController nicknameController = TextEditingController();
   TextEditingController nameController = TextEditingController();
@@ -51,6 +53,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
         setState(() {
           profileImage = imageBytes;
+          name = responseData['name'];
+          nickname = responseData['nickname'];
+
+          nameController.text = name ?? '';
+          nicknameController.text = nickname ?? '';
         });
       } else {
         // 에러 처리

@@ -481,7 +481,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top:50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

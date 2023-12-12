@@ -63,7 +63,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
         return Container(
           padding: EdgeInsets.only(
-              top: 16.0, left: 16.0, right: 16.0, bottom: 16.0),
+              top: 50.0, left: 16.0, right: 16.0, bottom: 16.0),
           color: Colors.white, // 배경색 지정
           child: Row(
             children: [

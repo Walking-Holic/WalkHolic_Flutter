@@ -316,7 +316,7 @@ class _FeedScreenState extends State<FeedScreen> with RouteAware {
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 50),
                 child: Row(
                   children: [
                     Image.asset('assets/icons/profile/logo@2x.png', scale: 2),
@@ -455,10 +455,10 @@ Future<void> deletePost(int postId, BuildContext context) async {
     if (response.statusCode == 200) {
       // 게시물 삭제 성공 처리
       print('Post deleted successfully');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)));
-    } else {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FRTabbarScreen(initialTabIndex: 1)));
+      } else {
       // 서버 응답 에러 처리
       print('Failed to delete post: ${response.statusCode}');
     }
