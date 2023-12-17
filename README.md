@@ -194,13 +194,14 @@
 
 <img src = "https://github.com/Walking-Holic/WalkHolic_Flutter/assets/126768512/96d28586-4ebf-4077-abe1-861ec90551a8" width = "30%">
   
-- 나만의 개성있는 프로필로 꾸며보세요!
+- 나만의 개성있는 프로필을 꾸며보세요!
 
 ------------------------------------------------------------------------------------------------------------------------------------
 
 <img src = "https://github.com/Walking-Holic/WalkHolic_Flutter/assets/126768512/b340ffe7-9dc8-4c54-a707-cfe593131d46" width = "30%">   
 <img src = "https://github.com/Walking-Holic/WalkHolic_Flutter/assets/126768512/c2ed1b50-2272-4760-b445-37e7e69bd36d" width = "30%">
- 
+<img src = "https://github.com/Walking-Holic/WalkHolic_Flutter/assets/126768512/7088590a-d111-493d-b834-db7fb31744ca" width = "30%">
+
 - 원하는 산책 시간을 설정 해보세요! **잠깐 시간 될까**는 항상 여러분과 함께 합니다!
 
 ------------------------------------------------------------------------------------------------------------------------------------
